@@ -7,6 +7,8 @@ import WhyItMatters  from '../components/landing/WhyItMatters'
 import HowItWorks    from '../components/landing/HowItWorks'
 import Features      from '../components/landing/Features'
 import StatsCounter  from '../components/landing/StatsCounter'
+import CareerStreams  from '../components/landing/CareerStreams'
+import Testimonials  from '../components/landing/Testimonials'
 
 function Home() {
   return (
@@ -18,7 +20,9 @@ function Home() {
         <HowItWorks />
         <Features />
         <StatsCounter />
-        {/* More sections coming: CareerStreams, Testimonials, FAQ, CTA */}
+        <CareerStreams />
+        <Testimonials />
+        {/* More sections coming: FAQ, CTA */}
       </main>
       <Footer />
     </>
