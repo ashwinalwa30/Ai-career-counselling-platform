@@ -1,2 +1,119 @@
-/* Tailwind v4: a single import replaces the old three-directive setup. */
+/* ─── Tailwind v4 ─────────────────────────────────────────────────────────── */
 @import "tailwindcss";
+
+/*
+  Dark mode strategy: Tailwind watches for the .dark class on <html>.
+  ThemeContext (Step 3) adds/removes this class based on user preference.
+*/
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Design tokens ───────────────────────────────────────────────────────── */
+/*
+  @theme tells Tailwind v4 to generate utility classes from these variables.
+  e.g. --color-brand-indigo → bg-brand-indigo, text-brand-indigo, etc.
+*/
+@theme {
+  /* Font */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Primary gradient: indigo → violet */
+  --color-brand-indigo: #4f46e5;
+  --color-brand-violet: #7c3aed;
+
+  /* Accent: warm amber for CTAs and highlights */
+  --color-brand-amber: #f59e0b;
+
+  /* Status colours */
+  --color-brand-emerald: #10b981;
+  --color-brand-rose:    #f43f5e;
+
+  /* Dark-mode background */
+  --color-navy-950: #0b1020;
+  --color-navy-900: #0f1629;
+  --color-navy-800: #161f38;
+}
+
+/* ─── Base styles ─────────────────────────────────────────────────────────── */
+@layer base {
+  /* Smooth scrolling for anchor links */
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Page background and default text colour, light and dark */
+  body {
+    @apply bg-slate-50 text-slate-700;
+    @apply dark:bg-navy-950 dark:text-slate-300;
+    min-height: 100svh;
+  }
+
+  /* Text selection: on-brand indigo tint */
+  ::selection {
+    background-color: rgb(79 70 229 / 0.15);
+    color: #4f46e5;
+  }
+  .dark ::selection {
+    background-color: rgb(124 58 237 / 0.3);
+    color: #c4b5fd;
+  }
+
+  /* Focus rings: visible, on-brand, only on keyboard navigation */
+  :focus-visible {
+    outline: 2px solid #4f46e5;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .dark :focus-visible {
+    outline-color: #7c3aed;
+  }
+
+  /* Headings: bold, tight letter-spacing, dark ink / near-white in dark mode */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight text-slate-900;
+    @apply dark:text-white;
+  }
+
+  /* Links inherit colour by default; individual components style them further */
+  a {
+    @apply text-brand-indigo hover:text-brand-violet;
+    @apply dark:text-indigo-400 dark:hover:text-violet-400;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  /* Respect users who prefer reduced motion — disable all transitions/animations */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ─── Utility helpers ─────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Gradient text: used on hero headings */
+  .text-gradient {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glassmorphism card surface */
+  .glass {
+    background: rgb(255 255 255 / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgb(255 255 255 / 0.3);
+  }
+  .dark .glass {
+    background: rgb(15 22 41 / 0.6);
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+}
