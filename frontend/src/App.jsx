@@ -13,7 +13,9 @@ import Home           from './pages/Home'
 import Login          from './pages/Login'
 import Register       from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
+import DashboardLayout from './components/layout/DashboardLayout'
 import Dashboard      from './pages/Dashboard'
+import ComingSoon     from './pages/ComingSoon'
 import NotFound       from './pages/NotFound'
 import UiShowcase     from './pages/UiShowcase'
 
@@ -31,8 +33,18 @@ function App() {
             <Route path="/register"        element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
             <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPassword /></PublicOnlyRoute>} />
 
-            {/* Protected pages — redirect to /login if not logged in */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            {/* Protected pages — DashboardLayout wraps all /dashboard/* routes */}
+            <Route
+              path="/dashboard"
+              element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}
+            >
+              <Route index                  element={<Dashboard />}  />
+              <Route path="test"            element={<ComingSoon />} />
+              <Route path="results"         element={<ComingSoon />} />
+              <Route path="careers"         element={<ComingSoon />} />
+              <Route path="counsellor"      element={<ComingSoon />} />
+              <Route path="profile"         element={<ComingSoon />} />
+            </Route>
 
             {/* Temporary dev route */}
             <Route path="/ui" element={<UiShowcase />} />
