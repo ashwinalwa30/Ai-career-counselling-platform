@@ -23,6 +23,7 @@ function Loader({ size = 'md', className = '' }) {
       className={`
         inline-block rounded-full animate-spin
         border-brand-indigo/25 border-t-brand-indigo
+        dark:border-indigo-700 dark:border-t-indigo-300
         ${SIZES[size]}
         ${className}
       `}
