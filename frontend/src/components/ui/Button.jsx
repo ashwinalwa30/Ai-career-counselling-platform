@@ -1,38 +1,28 @@
 /*
   Button — the main interactive element used throughout the app.
-  Supports four visual variants, three sizes, a loading spinner, and disabled state.
+  primary: solid teal  |  secondary: marigold with dark text
+  outline: teal border  |  ghost: teal text, no border
+  Three sizes, loading spinner, disabled state.
 */
 import Loader from './Loader'
 
-// Tailwind classes for each variant
 const VARIANTS = {
   primary:
-    'bg-gradient-to-r from-brand-indigo to-brand-violet text-white shadow-sm hover:shadow-indigo-200/60 hover:shadow-md hover:-translate-y-0.5 dark:hover:shadow-indigo-900/60',
+    'bg-teal text-white hover:bg-teal-dark',
   secondary:
-    'bg-brand-amber text-white shadow-sm hover:shadow-amber-200/60 hover:shadow-md hover:-translate-y-0.5',
+    'bg-marigold text-ink hover:bg-marigold-dk',
   outline:
-    'border-2 border-brand-indigo text-brand-indigo hover:bg-brand-indigo hover:text-white dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-500 dark:hover:border-indigo-500 dark:hover:text-white',
+    'border border-teal text-teal hover:bg-teal hover:text-white',
   ghost:
-    'text-brand-indigo hover:bg-brand-indigo/10 dark:text-indigo-400 dark:hover:bg-indigo-400/10',
+    'text-teal hover:bg-teal/10',
 }
 
-// Tailwind classes for each size
 const SIZES = {
-  sm: 'px-3 py-1.5 text-xs rounded-lg',
-  md: 'px-5 py-2.5 text-sm rounded-xl',
-  lg: 'px-7 py-3 text-base rounded-xl',
+  sm: 'px-3 py-1.5 text-xs rounded-md',
+  md: 'px-4 py-2 text-sm rounded-lg',
+  lg: 'px-6 py-2.5 text-base rounded-lg',
 }
 
-/*
-  Props:
-    variant  — 'primary' | 'secondary' | 'outline' | 'ghost'  (default: 'primary')
-    size     — 'sm' | 'md' | 'lg'                              (default: 'md')
-    loading  — boolean: shows spinner and blocks interaction
-    disabled — boolean
-    className — extra Tailwind classes
-    children — button label / content
-    ...rest  — anything else (onClick, type, aria-*, etc.)
-*/
 function Button({
   variant = 'primary',
   size = 'md',
@@ -49,9 +39,9 @@ function Button({
       disabled={isDisabled}
       className={`
         inline-flex items-center justify-center gap-2 font-semibold
-        transition-all duration-200 cursor-pointer select-none
-        focus-visible:ring-2 focus-visible:ring-brand-indigo focus-visible:ring-offset-2
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+        transition-colors duration-150 cursor-pointer select-none
+        focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2
+        disabled:opacity-40 disabled:cursor-not-allowed
         ${VARIANTS[variant]}
         ${SIZES[size]}
         ${className}
@@ -61,8 +51,12 @@ function Button({
       {loading && (
         <Loader
           size="sm"
-          // On primary/secondary the spinner should be white
-          className={variant === 'primary' || variant === 'secondary' ? 'border-white/30 border-t-white' : ''}
+          /* White spinner on solid-fill buttons, teal on transparent ones */
+          className={
+            variant === 'primary' || variant === 'secondary'
+              ? 'border-white/30 border-t-white'
+              : ''
+          }
         />
       )}
       {children}

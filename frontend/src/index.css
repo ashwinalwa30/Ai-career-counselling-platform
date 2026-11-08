@@ -2,89 +2,128 @@
 @import "tailwindcss";
 
 /*
-  Dark mode strategy: Tailwind watches for the .dark class on <html>.
-  ThemeContext (Step 3) adds/removes this class based on user preference.
+  Dark mode: ThemeContext adds/removes the .dark class on <html>.
+  All CSS variables in .dark {} switch automatically — no dark: prefix needed
+  on most elements because the utility classes read from the CSS vars.
 */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ─── Design tokens ───────────────────────────────────────────────────────── */
+/* ─── Semantic design tokens ──────────────────────────────────────────────── */
 /*
-  @theme tells Tailwind v4 to generate utility classes from these variables.
-  e.g. --color-brand-indigo → bg-brand-indigo, text-brand-indigo, etc.
+  Light mode: warm paper feel — inspired by Indian textbooks and stationery.
+  Dark mode: warm charcoal, NOT cold navy.
 */
-@theme {
-  /* Font */
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+:root {
+  --paper:        #F7F3EC;   /* page background   */
+  --surface:      #FFFFFF;   /* cards, panels      */
+  --ink:          #1C1917;   /* primary text       */
+  --muted:        #6B645C;   /* secondary text     */
+  --edge:         #E4DDD1;   /* borders            */
+  --teal:         #0F5C52;   /* primary action     */
+  --teal-dark:    #0A4740;   /* primary hover      */
+  --marigold:     #E3A23B;   /* accent / CTA       */
+  --marigold-dk:  #C8891F;   /* accent hover       */
+  --terracotta:   #C2593F;   /* secondary accent   */
+  --success:      #3F7D4E;
+  --error:        #B4412F;
+}
 
-  /* Primary gradient: indigo → violet */
-  --color-brand-indigo: #4f46e5;
-  --color-brand-violet: #7c3aed;
+.dark {
+  --paper:        #141513;   /* warm charcoal      */
+  --surface:      #1D1F1C;
+  --ink:          #EDE8DF;
+  --muted:        #A39C90;
+  --edge:         #2E302C;
+  --teal:         #5FBFAE;
+  --teal-dark:    #74CCBC;   /* lighter on hover in dark mode */
+  --marigold:     #EDB04F;
+  --marigold-dk:  #F5C26A;
+  --terracotta:   #D9765C;
+  --success:      #5FAD6E;
+  --error:        #E05A44;
+}
 
-  /* Accent: warm amber for CTAs and highlights */
-  --color-brand-amber: #f59e0b;
+/*
+  @theme inline: registers the CSS vars as Tailwind utility classes.
+  bg-paper, text-ink, border-edge, bg-teal, text-muted … all auto-switch
+  between light and dark because they read from the vars above.
+*/
+@theme inline {
+  --color-paper:        var(--paper);
+  --color-surface:      var(--surface);
+  --color-ink:          var(--ink);
+  --color-muted:        var(--muted);
+  --color-edge:         var(--edge);
+  --color-teal:         var(--teal);
+  --color-teal-dark:    var(--teal-dark);
+  --color-marigold:     var(--marigold);
+  --color-marigold-dk:  var(--marigold-dk);
+  --color-terracotta:   var(--terracotta);
+  --color-success:      var(--success);
+  --color-error:        var(--error);
 
-  /* Status colours */
-  --color-brand-emerald: #10b981;
-  --color-brand-rose:    #f43f5e;
-
-  /* Dark-mode background */
-  --color-navy-950: #0b1020;
-  --color-navy-900: #0f1629;
-  --color-navy-800: #161f38;
+  /* Fonts */
+  --font-sans:   "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif:  "Fraunces", ui-serif, Georgia, serif;
 }
 
 /* ─── Base styles ─────────────────────────────────────────────────────────── */
 @layer base {
-  /* Smooth scrolling for anchor links */
   html {
     scroll-behavior: smooth;
-    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Page background and default text colour, light and dark */
   body {
-    @apply bg-slate-50 text-slate-700;
-    @apply dark:bg-navy-950 dark:text-slate-300;
+    font-family: var(--font-sans);
+    background-color: var(--paper);
+    color: var(--ink);
     min-height: 100svh;
   }
 
-  /* Text selection: on-brand indigo tint */
-  ::selection {
-    background-color: rgb(79 70 229 / 0.15);
-    color: #4f46e5;
-  }
-  .dark ::selection {
-    background-color: rgb(124 58 237 / 0.3);
-    color: #c4b5fd;
-  }
-
-  /* Focus rings: visible, on-brand, only on keyboard navigation */
-  :focus-visible {
-    outline: 2px solid #4f46e5;
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-  .dark :focus-visible {
-    outline-color: #7c3aed;
+  /* Very subtle paper-grain noise overlay — adds tactility without distraction */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* Headings: bold, tight letter-spacing, dark ink / near-white in dark mode */
+  /* Headings: Fraunces serif — editorial, warm, human */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight text-slate-900;
-    @apply dark:text-white;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
-  /* Links inherit colour by default; individual components style them further */
+  /* Links */
   a {
-    @apply text-brand-indigo hover:text-brand-violet;
-    @apply dark:text-indigo-400 dark:hover:text-violet-400;
+    color: var(--teal);
     text-decoration: none;
     transition: color 0.15s ease;
   }
+  a:hover { color: var(--teal-dark); }
 
-  /* Respect users who prefer reduced motion — disable all transitions/animations */
+  /* Selection highlight in teal */
+  ::selection {
+    background-color: color-mix(in srgb, var(--teal) 15%, transparent);
+    color: var(--teal);
+  }
+
+  /* Focus rings: teal, keyboard-only */
+  :focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Respect prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -97,23 +136,19 @@
 
 /* ─── Utility helpers ─────────────────────────────────────────────────────── */
 @layer utilities {
-  /* Gradient text: used on hero headings */
-  .text-gradient {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /*
+    Warm glass surface — used only on the scrolled Navbar.
+    Uses color-mix so it stays warm-tinted in both modes.
+  */
+  .glass {
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid color-mix(in srgb, var(--edge) 80%, transparent);
   }
 
-  /* Glassmorphism card surface */
-  .glass {
-    background: rgb(255 255 255 / 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgb(255 255 255 / 0.3);
-  }
-  .dark .glass {
-    background: rgb(15 22 41 / 0.6);
-    border: 1px solid rgb(255 255 255 / 0.08);
+  /* Serif helper class for one-off serif text outside headings */
+  .font-serif {
+    font-family: var(--font-serif);
   }
 }

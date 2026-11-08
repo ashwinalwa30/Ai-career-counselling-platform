@@ -1,53 +1,39 @@
 /*
-  Modal — a dialog overlay that traps focus and blocks the page behind it.
-  Closes when: the X button is clicked, the backdrop is clicked, or Escape is pressed.
-  Uses Framer Motion for a smooth fade + scale entrance/exit.
+  Modal — dialog overlay with Framer Motion fade + scale animation.
+  Closes on backdrop click, × button, or Escape key.
+  Body scroll is locked while the modal is open.
 */
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 
-/*
-  Props:
-    isOpen  — boolean: controls visibility
-    onClose — function: called when the user wants to close
-    title   — string: shown in the header; also used as the aria-label
-    children
-*/
 function Modal({ isOpen, onClose, title, children }) {
-  // Close when the user presses Escape
+  // Close on Escape
   useEffect(() => {
     if (!isOpen) return
-    function handleKey(e) {
-      if (e.key === 'Escape') onClose()
-    }
+    function handleKey(e) { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
   }, [isOpen, onClose])
 
-  // Prevent body scrolling while modal is open
+  // Lock body scroll while open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
+    document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
   return (
     <AnimatePresence>
       {isOpen && (
-        // Full-screen container: backdrop + centred dialog
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label={title}
         >
-          {/* Backdrop — clicking it closes the modal */}
+          {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -56,39 +42,26 @@ function Modal({ isOpen, onClose, title, children }) {
 
           {/* Dialog panel */}
           <motion.div
-            className="
-              relative z-10 w-full max-w-md
-              rounded-2xl bg-white dark:bg-navy-800
-              shadow-2xl shadow-slate-900/20
-              border border-slate-100 dark:border-slate-700/50
-            "
-            initial={{ opacity: 0, scale: 0.95, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            className="relative z-10 w-full max-w-md rounded-xl bg-surface border border-edge shadow-xl"
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1,    y: 0 }}
+            exit={{    opacity: 0, scale: 0.96, y: 8 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100 dark:border-slate-700/50">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                {title}
-              </h2>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-edge">
+              <h2 className="text-base font-semibold text-ink">{title}</h2>
               <button
                 onClick={onClose}
                 aria-label="Close modal"
-                className="
-                  p-1.5 rounded-lg text-slate-400 hover:text-slate-600
-                  hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-200
-                  transition-colors duration-150 cursor-pointer
-                "
+                className="p-1.5 rounded-md text-muted hover:text-ink hover:bg-edge transition-colors duration-150 cursor-pointer"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
             {/* Body */}
-            <div className="p-6">
-              {children}
-            </div>
+            <div className="px-6 py-5">{children}</div>
           </motion.div>
         </div>
       )}

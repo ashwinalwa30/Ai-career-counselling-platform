@@ -1,51 +1,22 @@
-// Placeholder home page shown at "/".
-// Includes a theme toggle to verify ThemeContext works.
-// Will be replaced with the real landing page in a later step.
-import { Sun, Moon } from 'lucide-react'
-import { useTheme } from '../context/ThemeContext'
+// Home page — the public landing page.
+// Assembles the layout shell (Navbar, Footer) around the landing sections.
+// More sections (How it works, Careers, FAQ) will be added in later steps.
+import Navbar from '../components/layout/Navbar'
+import Footer from '../components/layout/Footer'
+import Hero   from '../components/landing/Hero'
 
 function Home() {
-  const { theme, toggleTheme } = useTheme()
-
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <div className="text-center space-y-6">
-        <h1 className="text-5xl font-extrabold tracking-tight text-gradient">
-          PathFinder
-        </h1>
+    <>
+      <Navbar />
 
-        <p className="text-slate-500 dark:text-slate-400 text-lg">
-          AI Career Counselling — coming soon
-        </p>
+      <main>
+        <Hero />
+        {/* More sections go here: HowItWorks, CareerHighlights, FAQ … */}
+      </main>
 
-        {/* Theme toggle — temporary, here just to verify ThemeContext works */}
-        <button
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          className="
-            inline-flex items-center gap-2 px-4 py-2 rounded-xl
-            bg-white dark:bg-navy-800
-            border border-slate-200 dark:border-slate-700
-            text-slate-700 dark:text-slate-200
-            shadow-sm hover:shadow-md
-            transition-all duration-200 cursor-pointer
-          "
-        >
-          {theme === 'dark' ? (
-            <Sun size={18} className="text-brand-amber" />
-          ) : (
-            <Moon size={18} className="text-brand-indigo" />
-          )}
-          <span className="text-sm font-medium">
-            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-          </span>
-        </button>
-
-        <p className="text-xs text-slate-400 dark:text-slate-600">
-          Current theme: <strong>{theme}</strong> · saved in localStorage
-        </p>
-      </div>
-    </main>
+      <Footer />
+    </>
   )
 }
 
