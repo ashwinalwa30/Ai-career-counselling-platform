@@ -4,6 +4,7 @@
   Mobile: hamburger reveals an animated slide-down menu.
 */
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Compass, Menu, X, Sun, Moon } from 'lucide-react'
 
@@ -19,6 +20,7 @@ const NAV_LINKS = [
 
 function Navbar() {
   const { theme, toggleTheme } = useTheme()
+  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -79,8 +81,8 @@ function Navbar() {
           >
             {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
-          <Button variant="ghost" size="sm">Login</Button>
-          <Button size="sm">Get Started</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Login</Button>
+          <Button size="sm" onClick={() => navigate('/register')}>Get Started</Button>
         </div>
 
         {/* Mobile: theme toggle + hamburger */}
@@ -127,8 +129,10 @@ function Navbar() {
                 </a>
               ))}
               <div className="mt-3 pt-3 border-t border-edge flex flex-col gap-2">
-                <Button variant="outline" size="md" className="w-full justify-center">Login</Button>
-                <Button size="md" className="w-full justify-center">Get Started</Button>
+                <Button variant="outline" size="md" className="w-full justify-center"
+                  onClick={() => { setMenuOpen(false); navigate('/login') }}>Login</Button>
+                <Button size="md" className="w-full justify-center"
+                  onClick={() => { setMenuOpen(false); navigate('/register') }}>Get Started</Button>
               </div>
             </div>
           </motion.div>
