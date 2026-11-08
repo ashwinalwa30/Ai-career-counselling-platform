@@ -15,6 +15,7 @@ import Register       from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 import DashboardLayout from './components/layout/DashboardLayout'
 import Dashboard      from './pages/Dashboard'
+import Profile        from './pages/Profile'
 import ComingSoon     from './pages/ComingSoon'
 import NotFound       from './pages/NotFound'
 import UiShowcase     from './pages/UiShowcase'
@@ -43,7 +44,7 @@ function App() {
               <Route path="results"         element={<ComingSoon />} />
               <Route path="careers"         element={<ComingSoon />} />
               <Route path="counsellor"      element={<ComingSoon />} />
-              <Route path="profile"         element={<ComingSoon />} />
+              <Route path="profile"         element={<Profile />}   />
             </Route>
 
             {/* Temporary dev route */}

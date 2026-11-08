@@ -174,3 +174,43 @@ export async function getDashboardData(userId) {   // eslint-disable-line no-unu
     message: 'Dashboard data loaded',
   }
 }
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+
+/*
+  getProfile — returns the full user profile including subjectMarks and dob.
+  getCurrentUser only returns the minimal auth payload; this endpoint returns
+  everything needed for the Profile page.
+*/
+export async function getProfile(userId) {
+  await wait()
+
+  const user = db.find(u => u.id === userId)
+  if (!user) throw new Error('User not found.')
+
+  return {
+    success: true,
+    data:    { profile: publicUser(user) },
+    message: 'Profile loaded',
+  }
+}
+
+/*
+  updateProfile — merges the provided fields into the in-memory user record.
+  Returns the updated user so the caller can refresh AuthContext.
+  In production this would be a PATCH /users/:id request.
+*/
+export async function updateProfile(userId, updates) {
+  await wait()
+
+  const idx = db.findIndex(u => u.id === userId)
+  if (idx === -1) throw new Error('User not found.')
+
+  db[idx] = { ...db[idx], ...updates }
+
+  return {
+    success: true,
+    data:    { user: publicUser(db[idx]) },
+    message: 'Profile updated successfully',
+  }
+}
