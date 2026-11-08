@@ -9,11 +9,13 @@ import { AuthProvider }  from './context/AuthContext'
 import ProtectedRoute  from './components/layout/ProtectedRoute'
 import PublicOnlyRoute from './components/layout/PublicOnlyRoute'
 
-import Home       from './pages/Home'
-import Login      from './pages/Login'
-import Register   from './pages/Register'
-import Dashboard  from './pages/Dashboard'
-import UiShowcase from './pages/UiShowcase'
+import Home           from './pages/Home'
+import Login          from './pages/Login'
+import Register       from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import Dashboard      from './pages/Dashboard'
+import NotFound       from './pages/NotFound'
+import UiShowcase     from './pages/UiShowcase'
 
 function App() {
   return (
@@ -25,14 +27,18 @@ function App() {
             <Route path="/" element={<Home />} />
 
             {/* Auth pages — redirect to /dashboard if already logged in */}
-            <Route path="/login"    element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
-            <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+            <Route path="/login"           element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+            <Route path="/register"        element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+            <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPassword /></PublicOnlyRoute>} />
 
             {/* Protected pages — redirect to /login if not logged in */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
             {/* Temporary dev route */}
             <Route path="/ui" element={<UiShowcase />} />
+
+            {/* 404 — catch-all for any unknown path */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
