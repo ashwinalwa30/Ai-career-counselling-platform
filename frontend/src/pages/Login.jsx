@@ -53,10 +53,6 @@ function RightPanel() {
         </ul>
       </div>
 
-      {/* Bottom: attribution */}
-      <p className="relative z-10 text-xs font-sans text-paper/40">
-        Smart India Hackathon · Ministry of Education
-      </p>
     </div>
   )
 }

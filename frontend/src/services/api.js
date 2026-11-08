@@ -7,6 +7,13 @@
 */
 
 import MOCK_USERS from '../data/users.js'
+import {
+  PROFILE_COMPLETION,
+  TEST_STATUS,
+  TOP_CAREER_MATCHES,
+  NEXT_STEPS,
+  CAREER_FACTS,
+} from '../data/dashboard.js'
 
 // ── In-memory "database" ────────────────────────────────────────────────────
 // Starts with the seed data. registerUser pushes new entries here at runtime.
@@ -136,5 +143,34 @@ export async function logoutUser() {
     success: true,
     data:    null,
     message: 'Logged out successfully',
+  }
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+
+/*
+  getDashboardData — returns everything the Dashboard page needs in one call.
+  Picks today's career fact using the day-of-year so it changes daily.
+  userId is accepted for future real-API use; the mock ignores it.
+*/
+export async function getDashboardData(userId) {   // eslint-disable-line no-unused-vars
+  await wait()
+
+  // Pick a fact based on today's date so it rotates naturally each day
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86_400_000
+  )
+  const todaysFact = CAREER_FACTS[dayOfYear % CAREER_FACTS.length]
+
+  return {
+    success: true,
+    data: {
+      profileCompletion: PROFILE_COMPLETION,
+      testStatus:        TEST_STATUS,
+      careerMatches:     TOP_CAREER_MATCHES,
+      nextSteps:         NEXT_STEPS,
+      dailyFact:         todaysFact,
+    },
+    message: 'Dashboard data loaded',
   }
 }
