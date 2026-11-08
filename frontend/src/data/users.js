@@ -18,6 +18,15 @@ const MOCK_USERS = [
     state:             'Delhi',
     preferredLanguage: 'English',
     interests:         ['coding', 'maths', 'design'],
+    dob:               '2008-03-15',
+    subjectMarks: {
+      maths:          85,
+      science:        78,
+      english:        91,
+      socialScience:  72,
+      secondLanguage: 88,
+      computer:       95,
+    },
     createdAt:         '2024-08-01T10:30:00Z',
   },
 ]

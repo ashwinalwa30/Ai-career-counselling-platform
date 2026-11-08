@@ -68,8 +68,13 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  // updateUser — called after a profile save to sync the new data everywhere
+  function updateUser(updatedUser) {
+    setUser(updatedUser)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
