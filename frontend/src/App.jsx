@@ -20,6 +20,7 @@ import Profile          from './pages/Profile'
 import TestInstructions from './pages/TestInstructions'
 import TestPage         from './pages/TestPage'
 import Results          from './pages/Results'
+import Careers          from './pages/Careers'
 import ComingSoon       from './pages/ComingSoon'
 import NotFound         from './pages/NotFound'
 import UiShowcase     from './pages/UiShowcase'
@@ -47,7 +48,8 @@ function App() {
               <Route index                  element={<Dashboard />}  />
               <Route path="test"            element={<TestInstructions />} />
               <Route path="results"         element={<Results />} />
-              <Route path="careers"         element={<ComingSoon />} />
+              <Route path="careers"         element={<Careers />} />
+              <Route path="careers/:id"    element={<ComingSoon />} />
               <Route path="counsellor"      element={<ComingSoon />} />
               <Route path="profile"         element={<Profile />}   />
             </Route>
