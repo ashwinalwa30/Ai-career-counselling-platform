@@ -8,21 +8,23 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Compass, Menu, X, Sun, Moon } from 'lucide-react'
 
-import { useTheme } from '../../context/ThemeContext'
+import { useTheme }    from '../../context/ThemeContext'
+import { useLanguage } from '../../context/LanguageContext'
 import Button from '../ui/Button'
 
-const NAV_LINKS = [
-  { label: 'Home',         href: '#home' },
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'Careers',      href: '#careers' },
-  { label: 'FAQ',          href: '#faq' },
-]
-
 function Navbar() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme }   = useTheme()
+  const { lang, toggleLang, t }  = useLanguage()
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const NAV_LINKS = [
+    { label: t('nav_home'),    href: '#home'         },
+    { label: t('nav_how'),     href: '#how-it-works' },
+    { label: t('nav_careers'), href: '#careers'      },
+    { label: t('nav_faq'),     href: '#faq'          },
+  ]
 
   useEffect(() => {
     function onScroll() { setScrolled(window.scrollY > 20) }
@@ -72,8 +74,16 @@ function Navbar() {
           ))}
         </ul>
 
-        {/* Desktop: theme toggle + auth buttons */}
+        {/* Desktop: lang toggle + theme toggle + auth buttons */}
         <div className="hidden md:flex items-center gap-2">
+          {/* Language toggle — compact pill */}
+          <button
+            onClick={toggleLang}
+            aria-label={lang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+            className="px-2.5 py-1 rounded-md text-xs font-sans font-semibold text-muted hover:text-ink hover:bg-edge transition-colors duration-150 cursor-pointer"
+          >
+            {lang === 'en' ? 'हि' : 'EN'}
+          </button>
           <button
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -81,12 +91,19 @@ function Navbar() {
           >
             {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Login</Button>
-          <Button size="sm" onClick={() => navigate('/register')}>Get Started</Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>{t('nav_login')}</Button>
+          <Button size="sm" onClick={() => navigate('/register')}>{t('nav_get_started')}</Button>
         </div>
 
-        {/* Mobile: theme toggle + hamburger */}
+        {/* Mobile: lang + theme toggle + hamburger */}
         <div className="flex md:hidden items-center gap-1">
+          <button
+            onClick={toggleLang}
+            aria-label={lang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+            className="px-2 py-1 rounded-md text-xs font-sans font-semibold text-muted hover:bg-edge transition-colors cursor-pointer"
+          >
+            {lang === 'en' ? 'हि' : 'EN'}
+          </button>
           <button
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -130,9 +147,9 @@ function Navbar() {
               ))}
               <div className="mt-3 pt-3 border-t border-edge flex flex-col gap-2">
                 <Button variant="outline" size="md" className="w-full justify-center"
-                  onClick={() => { setMenuOpen(false); navigate('/login') }}>Login</Button>
+                  onClick={() => { setMenuOpen(false); navigate('/login') }}>{t('nav_login')}</Button>
                 <Button size="md" className="w-full justify-center"
-                  onClick={() => { setMenuOpen(false); navigate('/register') }}>Get Started</Button>
+                  onClick={() => { setMenuOpen(false); navigate('/register') }}>{t('nav_get_started')}</Button>
               </div>
             </div>
           </motion.div>

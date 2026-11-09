@@ -12,26 +12,24 @@ import {
   MessageSquare, User, LogOut, Sun, Moon, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 
-import { useAuth }  from '../../context/AuthContext'
-import { useTheme } from '../../context/ThemeContext'
+import { useAuth }     from '../../context/AuthContext'
+import { useTheme }    from '../../context/ThemeContext'
+import { useLanguage } from '../../context/LanguageContext'
 
 // ── Shared nav data ──────────────────────────────────────────────────────────
 
 /*
-  NAV_ITEMS — single source of truth for sidebar and bottom nav.
-  'end: true' on the index route prevents it matching every sub-path.
+  NAV_KEYS — translation keys paired with route paths.
+  Labels are resolved at render time via t() so they switch with language.
 */
-const NAV_ITEMS = [
-  { path: '/dashboard',            label: 'Dashboard',       icon: LayoutDashboard, end: true  },
-  { path: '/dashboard/test',       label: 'Aptitude Test',   icon: ClipboardList,   end: false },
-  { path: '/dashboard/results',    label: 'Results',         icon: BarChart2,       end: false },
-  { path: '/dashboard/careers',    label: 'Career Explorer', icon: Compass,         end: false },
-  { path: '/dashboard/counsellor', label: 'AI Counsellor',   icon: MessageSquare,   end: false },
-  { path: '/dashboard/profile',    label: 'Profile',         icon: User,            end: false },
+const NAV_KEYS = [
+  { path: '/dashboard',            key: 'side_dashboard',  icon: LayoutDashboard, end: true  },
+  { path: '/dashboard/test',       key: 'side_test',       icon: ClipboardList,   end: false },
+  { path: '/dashboard/results',    key: 'side_results',    icon: BarChart2,       end: false },
+  { path: '/dashboard/careers',    key: 'side_careers',    icon: Compass,         end: false },
+  { path: '/dashboard/counsellor', key: 'side_counsellor', icon: MessageSquare,   end: false },
+  { path: '/dashboard/profile',    key: 'side_profile',    icon: User,            end: false },
 ]
-
-// Mobile bottom bar shows 5 items — Results is reachable from the Test section
-const MOBILE_NAV = NAV_ITEMS.filter(item => item.path !== '/dashboard/results')
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -57,9 +55,12 @@ function checkActive(itemPath, itemEnd, pathname) {
   survives page navigations.
 */
 function Sidebar({ collapsed, onToggle }) {
-  const { user, logout } = useAuth()
-  const navigate         = useNavigate()
-  const { pathname }     = useLocation()
+  const { user, logout }         = useAuth()
+  const navigate                 = useNavigate()
+  const { pathname }             = useLocation()
+  const { t }                    = useLanguage()
+  const NAV_ITEMS = NAV_KEYS.map(item => ({ ...item, label: t(item.key) }))
+  const MOBILE_NAV = NAV_ITEMS.filter(item => item.path !== '/dashboard/results')
 
   async function handleLogout() {
     await logout()
@@ -70,7 +71,7 @@ function Sidebar({ collapsed, onToggle }) {
     <motion.aside
       animate={{ width: collapsed ? 64 : 224 }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
-      className="hidden md:flex flex-col h-screen bg-surface border-r border-edge flex-shrink-0 overflow-hidden"
+      className="no-print hidden md:flex flex-col h-screen bg-surface border-r border-edge flex-shrink-0 overflow-hidden"
     >
       {/* Logo */}
       <div className="h-14 flex items-center px-4 border-b border-edge flex-shrink-0">
@@ -150,7 +151,7 @@ function Sidebar({ collapsed, onToggle }) {
           `}
         >
           <LogOut size={15} className="flex-shrink-0" />
-          {!collapsed && <span>Logout</span>}
+          {!collapsed && <span>{t('side_logout')}</span>}
         </button>
 
         {/* Collapse / expand */}
@@ -166,7 +167,7 @@ function Sidebar({ collapsed, onToggle }) {
         >
           {collapsed
             ? <ChevronRight size={14} />
-            : <><ChevronLeft size={14} /><span>Collapse</span></>
+            : <><ChevronLeft size={14} /><span>{t('side_collapse')}</span></>
           }
         </button>
       </div>
@@ -181,20 +182,32 @@ function Sidebar({ collapsed, onToggle }) {
   Shows the current page title, a theme toggle, and an initials avatar.
 */
 function TopBar() {
-  const { user }         = useAuth()
-  const navigate         = useNavigate()
-  const { pathname }     = useLocation()
-  const { theme, toggleTheme } = useTheme()
+  const { user }                = useAuth()
+  const navigate                = useNavigate()
+  const { pathname }            = useLocation()
+  const { theme, toggleTheme }  = useTheme()
+  const { lang, toggleLang, t } = useLanguage()
+
+  const NAV_ITEMS = NAV_KEYS.map(item => ({ ...item, label: t(item.key) }))
 
   // Derive the page title from the current route
   const currentItem = NAV_ITEMS.find(item => checkActive(item.path, item.end, pathname))
-  const pageTitle   = currentItem?.label || 'Dashboard'
+  const pageTitle   = currentItem?.label || t('side_dashboard')
 
   return (
-    <header className="h-14 bg-surface border-b border-edge flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
+    <header className="no-print h-14 bg-surface border-b border-edge flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
       <p className="font-sans font-semibold text-sm text-ink">{pageTitle}</p>
 
       <div className="flex items-center gap-2">
+        {/* Language toggle */}
+        <button
+          onClick={toggleLang}
+          aria-label={lang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+          className="px-2.5 py-1 rounded-md text-xs font-sans font-semibold text-muted hover:text-ink hover:bg-edge transition-colors cursor-pointer"
+        >
+          {lang === 'en' ? 'हि' : 'EN'}
+        </button>
+
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
@@ -227,10 +240,13 @@ function TopBar() {
 */
 function BottomNav() {
   const { pathname } = useLocation()
+  const { t }        = useLanguage()
+  const NAV_ITEMS  = NAV_KEYS.map(item => ({ ...item, label: t(item.key) }))
+  const MOBILE_NAV = NAV_ITEMS.filter(item => item.path !== '/dashboard/results')
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-edge z-30"
+      className="no-print md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-edge z-30"
       aria-label="Mobile navigation"
     >
       <div className="flex">

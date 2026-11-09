@@ -6,12 +6,25 @@
 */
 import React   from 'react'
 import { Link } from 'react-router-dom'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, RotateCcw } from 'lucide-react'
+
+// All app localStorage keys except the theme preference.
+// Clearing these resets auth, test progress, language and nav flags
+// so a corrupt state doesn't loop back to the same crash.
+const CLEARABLE_KEYS = [
+  'pf-auth-token',
+  'pf-test-progress',
+  'pf-lang',
+  'pf-sidebar-collapsed',
+  'pf-roadmap-opened',
+  'pf-chat-sent',
+]
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
     this.state = { hasError: false, message: '' }
+    this.handleReset = this.handleReset.bind(this)
   }
 
   // Called during render when a child throws — update state so the fallback UI shows
@@ -22,6 +35,12 @@ class ErrorBoundary extends React.Component {
   // Called after the render phase — good place for logging
   componentDidCatch(error, info) {
     console.error('[ErrorBoundary]', error, info.componentStack)
+  }
+
+  // Clear all app data (except theme) then reload so a corrupt state can't loop
+  handleReset() {
+    CLEARABLE_KEYS.forEach(key => localStorage.removeItem(key))
+    window.location.href = '/'
   }
 
   render() {
@@ -38,8 +57,8 @@ class ErrorBoundary extends React.Component {
             Something went wrong
           </h1>
           <p className="font-sans text-sm text-muted max-w-xs">
-            An unexpected error occurred. Your progress is saved — head back
-            to the dashboard to continue.
+            An unexpected error occurred. Try going back to the dashboard, or
+            reset the app if the error keeps happening.
           </p>
         </div>
 
@@ -50,12 +69,24 @@ class ErrorBoundary extends React.Component {
           </pre>
         )}
 
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-teal text-white font-sans font-semibold text-sm hover:bg-teal-dark transition-colors"
-        >
-          Go to dashboard
-        </Link>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-teal text-white font-sans font-semibold text-sm hover:bg-teal-dark transition-colors"
+          >
+            Go to dashboard
+          </Link>
+
+          {/* Clears all app localStorage keys (keeps theme) and reloads to /,
+              breaking any crash loop caused by corrupt persisted state. */}
+          <button
+            onClick={this.handleReset}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-edge text-sm font-sans font-semibold text-muted hover:text-ink hover:border-teal/40 transition-colors cursor-pointer"
+          >
+            <RotateCcw size={14} />
+            Reset app data
+          </button>
+        </div>
       </div>
     )
   }

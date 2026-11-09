@@ -3,8 +3,9 @@
 // Route guards (ProtectedRoute / PublicOnlyRoute) control access to each page.
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
-import { ThemeProvider } from './context/ThemeContext'
-import { AuthProvider }  from './context/AuthContext'
+import { ThemeProvider }    from './context/ThemeContext'
+import { AuthProvider }     from './context/AuthContext'
+import { LanguageProvider } from './context/LanguageContext'
 
 import ProtectedRoute  from './components/layout/ProtectedRoute'
 import PublicOnlyRoute from './components/layout/PublicOnlyRoute'
@@ -24,15 +25,16 @@ import Careers          from './pages/Careers'
 import CareerDetail     from './pages/CareerDetail'
 import CareerExplore    from './pages/CareerExplore'
 import CareerCompare    from './pages/CareerCompare'
+import Counsellor       from './pages/Counsellor'
 import ComingSoon       from './pages/ComingSoon'
 import NotFound         from './pages/NotFound'
-import UiShowcase     from './pages/UiShowcase'
 
 function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
+          <LanguageProvider>
           <ErrorBoundary>
           <Routes>
             {/* Public pages */}
@@ -55,7 +57,7 @@ function App() {
               <Route path="careers/:id"    element={<CareerDetail />} />
               <Route path="explore"         element={<CareerExplore />} />
               <Route path="compare"         element={<CareerCompare />} />
-              <Route path="counsellor"      element={<ComingSoon />} />
+              <Route path="counsellor"      element={<Counsellor />} />
               <Route path="profile"         element={<Profile />}   />
             </Route>
 
@@ -63,13 +65,11 @@ function App() {
                 has no sidebar or bottom nav, only its own minimal header */}
             <Route path="/dashboard/test/start" element={<ProtectedRoute><TestPage /></ProtectedRoute>} />
 
-            {/* Temporary dev route */}
-            <Route path="/ui" element={<UiShowcase />} />
-
             {/* 404 — catch-all for any unknown path */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           </ErrorBoundary>
+          </LanguageProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

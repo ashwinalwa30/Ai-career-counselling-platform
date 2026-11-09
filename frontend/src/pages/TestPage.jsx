@@ -15,6 +15,7 @@ import {
 
 import { TestProvider, useTest }                from '../context/TestContext'
 import { PalettePanel, MobilePaletteDrawer }   from '../components/test/QuestionPalette'
+import usePageTitle                             from '../hooks/usePageTitle'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -449,6 +450,7 @@ function TestLoadingScreen() {
   both manual submission (via the modal) and auto-submission when time expires.
 */
 function TestPageContent() {
+  usePageTitle('Aptitude Test — In Progress')
   const { loading, expired, submitAnswers } = useTest()
   const navigate    = useNavigate()
   const [modalOpen,  setModalOpen]  = useState(false)

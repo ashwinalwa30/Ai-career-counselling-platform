@@ -9,7 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Compass, ArrowLeft, CheckCircle } from 'lucide-react'
 
 import { forgotPassword } from '../services/api'
-import { validateEmail } from '../utils/validation'
+import { validateEmail }  from '../utils/validation'
+import usePageTitle        from '../hooks/usePageTitle'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
 
@@ -59,6 +60,7 @@ function SentConfirmation({ email }) {
 
 // ── Main ForgotPassword page ──────────────────────────────────────────────────
 function ForgotPassword() {
+  usePageTitle('Reset Password')
   const [email,       setEmail]       = useState('')
   const [emailError,  setEmailError]  = useState('')
   const [serverError, setServerError] = useState('')

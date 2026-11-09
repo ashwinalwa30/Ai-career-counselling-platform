@@ -14,6 +14,7 @@ import { motion }                        from 'framer-motion'
 import { Search, X, ChevronRight }       from 'lucide-react'
 
 import { getCareers } from '../services/api'
+import usePageTitle   from '../hooks/usePageTitle'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -91,7 +92,7 @@ function StreamSection({ stream, careers }) {
         <span className="text-xs font-sans text-muted">{careers.length} career{careers.length !== 1 ? 's' : ''}</span>
         <div className="flex-1 h-px bg-edge" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {careers.map((career, i) => (
           <ExploreCard key={career.id} career={career} index={i} />
         ))}
@@ -112,7 +113,7 @@ function ExploreSkeleton() {
       {[...Array(2)].map((_, i) => (
         <div key={i} className="space-y-3">
           <div className="h-5 w-32 bg-edge rounded-md" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {[...Array(3)].map((_, j) => (
               <div key={j} className="h-44 bg-surface border border-edge rounded-xl" />
             ))}
@@ -131,6 +132,7 @@ function ExploreSkeleton() {
   specific stream is selected.
 */
 export default function CareerExplore() {
+  usePageTitle('Career Explorer')
   const [allCareers,   setAllCareers]   = useState([])
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState(null)
@@ -182,7 +184,7 @@ export default function CareerExplore() {
   if (error)   return <div className="py-16 text-center font-sans text-sm text-error">{error}</div>
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5 pb-10">
+    <div className="max-w-7xl mx-auto space-y-5 pb-10 px-4 sm:px-6 py-6">
 
       {/* Intro + link to personalised recommendations */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -267,7 +269,7 @@ export default function CareerExplore() {
         </div>
       ) : (
         // Flat filtered list
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filtered.map((career, i) => (
             <ExploreCard key={career.id} career={career} index={i} />
           ))}

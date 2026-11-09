@@ -11,6 +11,7 @@ import { Pencil, CheckCircle }  from 'lucide-react'
 import { useAuth }                                        from '../context/AuthContext'
 import { getProfile, updateProfile }                      from '../services/api'
 import { validateFullName, validateEmail, validatePhone } from '../utils/validation'
+import usePageTitle                                        from '../hooks/usePageTitle'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -410,7 +411,7 @@ function ProfileHeader({ profile, mode, onEdit, onSave, onCancel, saving, hasErr
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function ProfileSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-4">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-4">
       <div className="bg-surface border border-edge rounded-lg p-5 sm:p-6 flex items-center gap-4">
         <Skeleton className="w-16 h-16 rounded-full" />
         <div className="space-y-2 flex-1">
@@ -434,6 +435,7 @@ function ProfileSkeleton() {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 function Profile() {
+  usePageTitle('Profile')
   const { user, updateUser }             = useAuth()
   const [profile,  setProfile]           = useState(null)
   const [loading,  setLoading]           = useState(true)
@@ -526,7 +528,7 @@ function Profile() {
       <Toast visible={toastVisible} message="Profile updated successfully." />
 
       <motion.div
-        className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-4"
+        className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-4"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}

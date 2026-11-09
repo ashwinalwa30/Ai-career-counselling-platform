@@ -11,6 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 
 import { getCareerById, getRecommendations } from '../services/api'
 import { useTheme }                           from '../context/ThemeContext'
+import usePageTitle                            from '../hooks/usePageTitle'
 
 // ── Colour helpers ─────────────────────────────────────────────────────────────
 
@@ -153,7 +154,7 @@ function CompareRow({ label, left, right, winnerIdx = null, fullWidth = false })
 
 function CompareSkeleton() {
   return (
-    <div className="max-w-4xl mx-auto space-y-5 animate-pulse pb-10">
+    <div className="max-w-7xl mx-auto space-y-5 animate-pulse pb-10 px-4 sm:px-6 pt-6">
       <div className="h-8 w-24 bg-edge rounded-md" />
       <div className="bg-surface border border-edge rounded-xl overflow-hidden">
         <div className="grid grid-cols-2 divide-x divide-edge">
@@ -190,6 +191,7 @@ function CompareSkeleton() {
   comparison field in a two-column layout with winner highlighting.
 */
 export default function CareerCompare() {
+  usePageTitle('Compare Careers')
   const [searchParams]              = useSearchParams()
   const { theme }                   = useTheme()
   const colors                      = CHART_COLORS[theme] ?? CHART_COLORS.light
@@ -235,7 +237,7 @@ export default function CareerCompare() {
 
   if (error || careers[0] == null || careers[1] == null) {
     return (
-      <div className="max-w-4xl mx-auto py-20 flex flex-col items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 flex flex-col items-center gap-4">
         <AlertTriangle size={32} className="text-error" />
         <p className="font-sans text-sm text-ink text-center">{error ?? 'Could not load careers.'}</p>
         <Link
@@ -265,7 +267,7 @@ export default function CareerCompare() {
   const seniorWin = winner(avgSalary(a.salary.senior), avgSalary(b.salary.senior))
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5 pb-10">
+    <div className="max-w-7xl mx-auto space-y-5 pb-10 px-4 sm:px-6 py-6">
 
       {/* Back link */}
       <Link
