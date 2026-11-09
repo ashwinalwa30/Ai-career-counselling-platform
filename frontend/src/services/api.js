@@ -14,11 +14,19 @@ import {
   NEXT_STEPS,
   CAREER_FACTS,
 } from '../data/dashboard.js'
+import QUESTIONS, { SECTIONS } from '../data/questions.js'
 
 // ── In-memory "database" ────────────────────────────────────────────────────
 // Starts with the seed data. registerUser pushes new entries here at runtime.
 // This resets on page refresh (intentional for a mock).
 const db = [...MOCK_USERS]
+
+/*
+  testState — mutable copy of TEST_STATUS so submitTest can flip it to
+  'completed' and getDashboardData will reflect that immediately.
+*/
+let testState      = { ...TEST_STATUS }
+let lastTestResult = null   // stores the most recent scored result
 
 // Maps token → userId so getCurrentUser can look up the session
 const tokenStore = {
@@ -146,6 +154,22 @@ export async function logoutUser() {
   }
 }
 
+// ── Test status ───────────────────────────────────────────────────────────────
+
+/*
+  getTestStatus — lightweight call used by the instructions page.
+  Returns the current test state and section metadata without loading all questions.
+*/
+export async function getTestStatus() {
+  await wait(200)
+
+  return {
+    success: true,
+    data:    { testStatus: testState, sections: SECTIONS },
+    message: 'Test status loaded',
+  }
+}
+
 // ── Dashboard ────────────────────────────────────────────────────────────────
 
 /*
@@ -166,7 +190,7 @@ export async function getDashboardData(userId) {   // eslint-disable-line no-unu
     success: true,
     data: {
       profileCompletion: PROFILE_COMPLETION,
-      testStatus:        TEST_STATUS,
+      testStatus:        testState,
       careerMatches:     TOP_CAREER_MATCHES,
       nextSteps:         NEXT_STEPS,
       dailyFact:         todaysFact,
@@ -212,5 +236,103 @@ export async function updateProfile(userId, updates) {
     success: true,
     data:    { user: publicUser(db[idx]) },
     message: 'Profile updated successfully',
+  }
+}
+
+// ── Aptitude test ─────────────────────────────────────────────────────────────
+
+/*
+  getQuestions — returns all questions and section metadata.
+  The test page uses this to build tabs, question cards and the palette.
+*/
+export async function getQuestions() {
+  await wait(400)
+
+  return {
+    success: true,
+    data:    { questions: QUESTIONS, sections: SECTIONS },
+    message: 'Questions loaded',
+  }
+}
+
+/*
+  submitTest — scores the student's answers and stores the result.
+
+  'answers' is an object mapping questionId → selected option text:
+    { lr_01: '38', ip_01: 'Art, Music or Drama', ... }
+
+  Cognitive scoring: count correct answers per section, convert to percentage.
+  RIASEC scoring: for each interest question, find the matching option's
+  riasecType and increment that type's tally.
+*/
+export async function submitTest(answers) {
+  await wait()
+
+  const COGNITIVE_SECTION_IDS = [
+    'logical_reasoning', 'numerical_ability', 'verbal_ability', 'spatial_reasoning',
+  ]
+
+  // Score cognitive sections
+  const cognitiveScores = {}
+  COGNITIVE_SECTION_IDS.forEach(sectionId => {
+    const qs      = QUESTIONS.filter(q => q.section === sectionId)
+    const correct = qs.filter(q => answers[q.id] === q.correctAnswer).length
+    cognitiveScores[sectionId] = {
+      correct,
+      total:      qs.length,
+      percentage: Math.round((correct / qs.length) * 100),
+    }
+  })
+
+  // Tally RIASEC types from interest profile answers
+  const riasecScores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 }
+  QUESTIONS
+    .filter(q => q.section === 'interest_profile')
+    .forEach(q => {
+      const selectedText = answers[q.id]
+      if (selectedText != null) {
+        const opt = q.options.find(o => o.text === selectedText)
+        if (opt) riasecScores[opt.riasecType]++
+      }
+    })
+
+  // Mark test as done
+  testState = {
+    ...testState,
+    status:            'completed',
+    questionsAnswered: QUESTIONS.length,
+    completedAt:       new Date().toISOString(),
+  }
+
+  const result = {
+    cognitiveScores,
+    riasecScores,
+    totalAnswered: Object.keys(answers).length,
+    completedAt:   testState.completedAt,
+  }
+  lastTestResult = result
+
+  return {
+    success: true,
+    data:    { result },
+    message: 'Test submitted successfully',
+  }
+}
+
+/*
+  getTestResults — returns the most recently scored test result.
+  Called by the Results page after the student submits.
+*/
+export async function getTestResults() {
+  await wait(300)
+
+  if (!lastTestResult) {
+    throw new Error('No results found. Please complete the aptitude test first.')
+  }
+
+  return {
+    success: true,
+    data:    { result: lastTestResult },
+    message: 'Results loaded',
   }
 }

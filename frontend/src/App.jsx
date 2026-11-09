@@ -14,10 +14,12 @@ import Login          from './pages/Login'
 import Register       from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 import DashboardLayout from './components/layout/DashboardLayout'
-import Dashboard      from './pages/Dashboard'
-import Profile        from './pages/Profile'
-import ComingSoon     from './pages/ComingSoon'
-import NotFound       from './pages/NotFound'
+import Dashboard        from './pages/Dashboard'
+import Profile          from './pages/Profile'
+import TestInstructions from './pages/TestInstructions'
+import TestPage         from './pages/TestPage'
+import ComingSoon       from './pages/ComingSoon'
+import NotFound         from './pages/NotFound'
 import UiShowcase     from './pages/UiShowcase'
 
 function App() {
@@ -40,12 +42,16 @@ function App() {
               element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}
             >
               <Route index                  element={<Dashboard />}  />
-              <Route path="test"            element={<ComingSoon />} />
+              <Route path="test"            element={<TestInstructions />} />
               <Route path="results"         element={<ComingSoon />} />
               <Route path="careers"         element={<ComingSoon />} />
               <Route path="counsellor"      element={<ComingSoon />} />
               <Route path="profile"         element={<Profile />}   />
             </Route>
+
+            {/* Full-screen test page — lives outside DashboardLayout so it
+                has no sidebar or bottom nav, only its own minimal header */}
+            <Route path="/dashboard/test/start" element={<ProtectedRoute><TestPage /></ProtectedRoute>} />
 
             {/* Temporary dev route */}
             <Route path="/ui" element={<UiShowcase />} />
