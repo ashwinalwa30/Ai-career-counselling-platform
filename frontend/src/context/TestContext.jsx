@@ -5,8 +5,9 @@
   Every component inside the test flow (TestPage, QuestionPalette, useTimer)
   uses useTest() instead of maintaining local state.
 */
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { getQuestions } from '../services/api'
+import { useTimer } from '../hooks/useTimer'
 
 const TestContext = createContext(null)
 
@@ -19,6 +20,19 @@ export function TestProvider({ children }) {
   const [markedForReview, setMarkedForReview] = useState(new Set())
   const [currentIndex,    setCurrentIndex]    = useState(0)
   const [loading,         setLoading]         = useState(true)
+  const [expired,         setExpired]         = useState(false)
+
+  // Auto-submit when timer reaches zero — wrapped in useCallback so the
+  // reference is stable and doesn't restart the interval on each render
+  const handleAutoExpire = useCallback(() => {
+    setExpired(true)
+  }, [])
+
+  const {
+    remaining:     timerRemaining,
+    formatted:     timerFormatted,
+    colourClass:   timerColour,
+  } = useTimer(30 * 60, handleAutoExpire)
 
   // ── Load questions on mount ───────────────────────────────────────────────
   useEffect(() => {
@@ -82,9 +96,11 @@ export function TestProvider({ children }) {
     <TestContext.Provider value={{
       // State
       questions, sections, answers, markedForReview,
-      currentIndex, currentQuestion, loading,
+      currentIndex, currentQuestion, loading, expired,
       // Derived
       answeredCount, isFirst, isLast,
+      // Timer
+      timerRemaining, timerFormatted, timerColour,
       // Actions
       setAnswer, clearAnswer, toggleMark,
       goToIndex, goToNext, goToPrev, goToSection,

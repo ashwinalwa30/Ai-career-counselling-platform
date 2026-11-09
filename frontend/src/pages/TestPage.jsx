@@ -11,7 +11,8 @@ import {
   Compass, ChevronLeft, ChevronRight, CheckCircle, Flag,
 } from 'lucide-react'
 
-import { TestProvider, useTest } from '../context/TestContext'
+import { TestProvider, useTest }                from '../context/TestContext'
+import { PalettePanel, MobilePaletteDrawer }   from '../components/test/QuestionPalette'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -31,7 +32,7 @@ function getOptionText(opt) {
   timer placeholder (the real countdown is wired in Step 5).
 */
 function MinimalHeader() {
-  const { questions, answeredCount } = useTest()
+  const { questions, answeredCount, timerFormatted, timerColour, timerRemaining } = useTest()
   const pct = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0
 
   return (
@@ -60,12 +61,11 @@ function MinimalHeader() {
           </div>
         </div>
 
-        {/* Timer — placeholder until Step 5 wires useTimer here */}
+        {/* Live countdown timer — colour shifts to marigold at ≤5 min, terracotta + pulse at ≤1 min */}
         <div
-          id="test-timer-slot"
-          className="flex-shrink-0 font-mono text-sm font-semibold text-ink w-14 text-right"
+          className={`flex-shrink-0 font-mono text-sm font-semibold w-14 text-right ${timerColour}${timerRemaining <= 60 ? ' animate-pulse' : ''}`}
         >
-          30:00
+          {timerFormatted}
         </div>
       </div>
     </header>
@@ -349,17 +349,27 @@ function TestPageContent() {
 
       <MinimalHeader />
 
-      {/* Main content — capped width, centred */}
-      <div className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-6 flex flex-col gap-5">
-        <SectionTabs />
-        <QuestionCard />
-        <NavigationBar />
+      {/* Two-column on lg+: left = test interface, right = palette panel */}
+      <div className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-6">
+        <div className="flex items-start gap-5">
+
+          {/* Left: section tabs, question card, navigation */}
+          <div className="flex-1 min-w-0 flex flex-col gap-5">
+            <SectionTabs />
+            <QuestionCard />
+            <NavigationBar />
+          </div>
+
+          {/* Right: palette panel — desktop only, sticky so it stays in view while scrolling */}
+          <aside className="hidden lg:block w-56 flex-shrink-0 sticky top-20">
+            <PalettePanel />
+          </aside>
+
+        </div>
       </div>
 
-      {/*
-        QuestionPalette slot — added in Step 4.
-        On desktop it will sit alongside the content; on mobile it slides up.
-      */}
+      {/* Mobile palette: floating button + slide-up drawer */}
+      <MobilePaletteDrawer />
     </div>
   )
 }
