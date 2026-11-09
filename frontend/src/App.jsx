@@ -8,6 +8,7 @@ import { AuthProvider }  from './context/AuthContext'
 
 import ProtectedRoute  from './components/layout/ProtectedRoute'
 import PublicOnlyRoute from './components/layout/PublicOnlyRoute'
+import ErrorBoundary   from './components/ErrorBoundary'
 
 import Home           from './pages/Home'
 import Login          from './pages/Login'
@@ -28,6 +29,7 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
+          <ErrorBoundary>
           <Routes>
             {/* Public pages */}
             <Route path="/" element={<Home />} />
@@ -60,6 +62,7 @@ function App() {
             {/* 404 — catch-all for any unknown path */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

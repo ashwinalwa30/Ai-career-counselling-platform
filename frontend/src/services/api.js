@@ -197,7 +197,11 @@ export async function getDashboardData(userId) {   // eslint-disable-line no-unu
     success: true,
     data: {
       profileCompletion: PROFILE_COMPLETION,
-      testStatus:        testState,
+      // Include overallScore so the dashboard card can show it when completed
+      testStatus: {
+        ...testState,
+        overallScore: lastTestResult?.overallScore ?? null,
+      },
       careerMatches:     TOP_CAREER_MATCHES,
       nextSteps:         NEXT_STEPS,
       dailyFact:         todaysFact,

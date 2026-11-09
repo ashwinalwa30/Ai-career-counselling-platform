@@ -97,6 +97,44 @@ const SECTION_LABELS = {
   spatial_reasoning: 'Spatial',
 }
 
+/*
+  SECTION_STRENGTH_NOTE — a short note shown on the strength card for each
+  section, pointing the student toward careers that value that skill.
+*/
+const SECTION_STRENGTH_NOTE = {
+  logical_reasoning: 'Your logical thinking is a strong asset. Careers in engineering, law and data analysis reward this skill directly.',
+  numerical_ability: 'Your numerical confidence stands out. Finance, economics and technology rely heavily on this ability.',
+  verbal_ability:    'Your verbal skills shine. Consider paths in writing, law, communication, education or content creation.',
+  spatial_reasoning: 'Strong spatial sense is rare and valuable. Architecture, design, surgery and engineering all prize this skill.',
+}
+
+/*
+  SECTION_TIPS — 3 concrete, actionable study habits per weak section.
+  Practical and specific so the student can start today.
+*/
+const SECTION_TIPS = {
+  logical_reasoning: [
+    'Practise puzzle types like number series, analogies and syllogisms for 15 minutes every day.',
+    'Solve one new riddle or brain-teaser each morning to sharpen pattern recognition.',
+    'Work through past reasoning papers from exams like NTSE, KVPY or Olympiads.',
+  ],
+  numerical_ability: [
+    'Practise mental maths daily: tables up to 25, percentage shortcuts and fraction conversions.',
+    'Spend 10 minutes each day on speed maths apps or textbook exercise sets.',
+    'Focus on profit-loss, ratio-proportion and time-work — the most common question types.',
+  ],
+  verbal_ability: [
+    'Read one English article or editorial daily and note down any unfamiliar words.',
+    'Build your vocabulary with 5 new words a day using flashcards or a vocab app.',
+    'Practise fill-in-the-blank and sentence-correction exercises from previous exam papers.',
+  ],
+  spatial_reasoning: [
+    'Sketch mirror images and rotated shapes with pen and paper to build visual thinking.',
+    'Solve Rubik\'s cube or tangram puzzles — they sharpen mental rotation skills.',
+    'Work through past spatial reasoning papers and re-draw each figure by hand.',
+  ],
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatDate(isoString) {
@@ -468,6 +506,111 @@ function RiasecSection({ riasecScores, topTypes, colors }) {
   )
 }
 
+// ── Strengths & weaknesses ────────────────────────────────────────────────────
+
+/*
+  StrengthCard — teal-tinted card for one of the student's strong sections.
+  Shows the section score and a note on which careers value this skill.
+*/
+function StrengthCard({ sectionId, score }) {
+  return (
+    <div className="bg-teal/5 border border-teal/20 rounded-xl p-4">
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <p className="font-sans font-semibold text-sm text-ink">{SECTION_LABELS[sectionId]}</p>
+        <span className="font-mono text-xs font-bold text-teal">{score}%</span>
+      </div>
+      <p className="text-xs font-sans text-muted leading-relaxed">
+        {SECTION_STRENGTH_NOTE[sectionId]}
+      </p>
+    </div>
+  )
+}
+
+/*
+  ImprovementCard — marigold-tinted card for a section to work on.
+  Lists 3 practical, specific habits the student can start today.
+*/
+function ImprovementCard({ sectionId, score }) {
+  const tips = SECTION_TIPS[sectionId] ?? []
+  return (
+    <div className="bg-marigold/5 border border-marigold/20 rounded-xl p-4">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <p className="font-sans font-semibold text-sm text-ink">{SECTION_LABELS[sectionId]}</p>
+        <span className="font-mono text-xs font-bold text-marigold">{score}%</span>
+      </div>
+      <ul className="space-y-2">
+        {tips.map((tip, i) => (
+          <li key={i} className="flex items-start gap-2.5">
+            <span className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full bg-marigold/20 text-marigold flex items-center justify-center text-[9px] font-bold">
+              {i + 1}
+            </span>
+            <p className="text-xs font-sans text-muted leading-relaxed">{tip}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/*
+  StrengthsWeaknessesSection — groups strength and improvement cards in one
+  panel with a divider. Strength cards come first; improvement cards second.
+*/
+function StrengthsWeaknessesSection({ sectionScores, strengths, weaknesses }) {
+  return (
+    <div className="bg-surface border border-edge rounded-xl p-5 space-y-5">
+      <div>
+        <h3 className="font-sans font-semibold text-sm text-ink mb-3">Your Strengths</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {strengths.map(id => (
+            <StrengthCard key={id} sectionId={id} score={sectionScores[id]} />
+          ))}
+        </div>
+      </div>
+
+      <div className="border-t border-edge" />
+
+      <div>
+        <h3 className="font-sans font-semibold text-sm text-ink mb-1">Areas to Improve</h3>
+        <p className="text-xs font-sans text-muted mb-3">
+          A few targeted habits make a big difference over time.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {weaknesses.map(id => (
+            <ImprovementCard key={id} sectionId={id} score={sectionScores[id]} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/*
+  CareerMatchesCTA — full-width teal banner at the bottom of the results page.
+  Links the student to the Career Explorer once they have seen their scores.
+*/
+function CareerMatchesCTA() {
+  return (
+    <div className="bg-teal rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <h3 className="font-sans font-bold text-base text-white mb-1">
+          Ready to explore your career matches?
+        </h3>
+        <p className="text-sm font-sans text-white/70">
+          Your personality type and aptitude scores have been used to identify careers that suit you.
+        </p>
+      </div>
+      <Link
+        to="/dashboard/careers"
+        className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-teal font-sans font-semibold text-sm hover:bg-teal-dark hover:text-white transition-colors whitespace-nowrap"
+      >
+        See career matches
+        <ChevronRight size={15} />
+      </Link>
+    </div>
+  )
+}
+
 // ── Empty state ────────────────────────────────────────────────────────────────
 
 /*
@@ -548,7 +691,7 @@ export default function Results() {
 
   if (!result) return <EmptyState />
 
-  const { sectionScores, riasecScores, topTypes, strengths } = result
+  const { sectionScores, riasecScores, topTypes, strengths, weaknesses } = result
 
   return (
     <motion.div
@@ -565,6 +708,14 @@ export default function Results() {
       </div>
 
       <RiasecSection riasecScores={riasecScores} topTypes={topTypes} colors={colors} />
+
+      <StrengthsWeaknessesSection
+        sectionScores={sectionScores}
+        strengths={strengths}
+        weaknesses={weaknesses}
+      />
+
+      <CareerMatchesCTA />
     </motion.div>
   )
 }
