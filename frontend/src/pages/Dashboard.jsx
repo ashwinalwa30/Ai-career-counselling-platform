@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 
 import { useAuth }          from '../context/AuthContext'
+import { useLanguage }      from '../context/LanguageContext'
+import usePageTitle          from '../hooks/usePageTitle'
 import { getDashboardData } from '../services/api'
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -25,12 +27,12 @@ function Skeleton({ className = '' }) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-// Returns "Good morning / afternoon / evening" based on the current hour
-function getTimeGreeting() {
+// Returns the translation key for the time-based greeting
+function getGreetingKey() {
   const h = new Date().getHours()
-  if (h < 12) return 'Good morning'
-  if (h < 17) return 'Good afternoon'
-  return 'Good evening'
+  if (h < 12) return 'dash_morning'
+  if (h < 17) return 'dash_afternoon'
+  return 'dash_evening'
 }
 
 // ── Profile Completion Ring ───────────────────────────────────────────────────
@@ -39,6 +41,7 @@ function getTimeGreeting() {
   The ring starts at 12 o'clock (-rotate-90 on the SVG).
 */
 function ProfileRing({ profileCompletion }) {
+  const { t }             = useLanguage()
   const { percentage, items } = profileCompletion
   const r            = 40
   const circumference = 2 * Math.PI * r     // ≈ 251.33
@@ -47,7 +50,7 @@ function ProfileRing({ profileCompletion }) {
   return (
     <div className="bg-surface border border-edge rounded-lg p-5">
       <p className="text-xs font-sans font-semibold text-muted uppercase tracking-wide mb-4">
-        Profile completion
+        {t('dash_profile')}
       </p>
 
       <div className="flex items-center gap-5">
@@ -106,35 +109,36 @@ function ProfileRing({ profileCompletion }) {
 */
 function TestStatusCard({ testStatus }) {
   const navigate = useNavigate()
+  const { t }    = useLanguage()
 
   // Build the config for the current state so the JSX stays clean
   const CONFIG = {
     not_started: {
-      badge:    'Not started',
+      badge:    t('ts_not_started'),
       badgeCls: 'bg-edge text-muted',
-      heading:  'Ready to discover your strengths?',
-      body:     '40 questions · approx. 20 minutes · instant results',
-      btnLabel: 'Start the aptitude test',
+      heading:  t('ts_ns_heading'),
+      body:     t('ts_ns_body'),
+      btnLabel: t('ts_ns_btn'),
       btnCls:   'bg-teal text-white hover:bg-teal-dark',
       onClick:  () => navigate('/dashboard/test'),
     },
     in_progress: {
-      badge:    'In progress',
+      badge:    t('ts_in_progress'),
       badgeCls: 'bg-marigold/15 text-marigold',
-      heading:  'You are part way through',
-      body:     `${testStatus.questionsAnswered} of ${testStatus.totalQuestions} questions answered`,
-      btnLabel: 'Resume test',
+      heading:  t('ts_ip_heading'),
+      body:     t('ts_ip_body', { answered: testStatus.questionsAnswered, total: testStatus.totalQuestions }),
+      btnLabel: t('ts_ip_btn'),
       btnCls:   'bg-marigold text-ink hover:bg-marigold-dk',
       onClick:  () => navigate('/dashboard/test'),
     },
     completed: {
-      badge:    'Completed',
+      badge:    t('ts_completed'),
       badgeCls: 'bg-success/10 text-success',
-      heading:  'Your results are ready',
+      heading:  t('ts_done_heading'),
       body:     testStatus.overallScore != null
-                  ? `You scored ${testStatus.overallScore}% overall · See your matched careers`
-                  : 'See your aptitude scores and matched career paths.',
-      btnLabel: 'View results',
+                  ? t('ts_done_body', { score: testStatus.overallScore })
+                  : t('ts_done_body_ns'),
+      btnLabel: t('ts_done_btn'),
       btnCls:   'bg-teal text-white hover:bg-teal-dark',
       onClick:  () => navigate('/dashboard/results'),
     },
@@ -174,6 +178,7 @@ function TestStatusCard({ testStatus }) {
   prompting the student to take the test.
 */
 function CareerMatchCard({ career, locked }) {
+  const { t } = useLanguage()
   return (
     <div className="relative bg-surface border border-edge rounded-lg p-4 overflow-hidden">
 
@@ -205,8 +210,8 @@ function CareerMatchCard({ career, locked }) {
         <div className="absolute inset-0 flex items-center justify-center bg-surface/60">
           <div className="bg-surface border border-edge rounded-lg px-4 py-3 text-center shadow-sm">
             <Lock size={15} className="text-muted mx-auto mb-1.5" />
-            <p className="text-xs font-sans font-semibold text-ink">Locked</p>
-            <p className="text-[10px] font-sans text-muted mt-0.5">Take the test to unlock</p>
+            <p className="text-xs font-sans font-semibold text-ink">{t('locked')}</p>
+            <p className="text-[10px] font-sans text-muted mt-0.5">{t('locked_sub')}</p>
           </div>
         </div>
       )}
@@ -220,15 +225,16 @@ function CareerMatchCard({ career, locked }) {
   Clicking a row toggles its done state locally (would sync to server in production).
 */
 function NextSteps({ steps, onToggle }) {
+  const { t }     = useLanguage()
   const doneCount = steps.filter(s => s.done).length
 
   return (
     <div className="bg-surface border border-edge rounded-lg p-5">
       <div className="flex items-center justify-between mb-4">
         <p className="text-xs font-sans font-semibold text-muted uppercase tracking-wide">
-          Your next steps
+          {t('dash_next_steps')}
         </p>
-        <span className="text-xs font-sans text-muted">{doneCount}/{steps.length} done</span>
+        <span className="text-xs font-sans text-muted">{t('dash_done_count', { done: doneCount, total: steps.length })}</span>
       </div>
 
       <ul className="space-y-2.5">
@@ -263,6 +269,7 @@ function NextSteps({ steps, onToggle }) {
   The fact rotates daily (chosen by day-of-year in api.js).
 */
 function DailyFact({ fact, source }) {
+  const { t } = useLanguage()
   return (
     <div className="bg-surface border border-edge rounded-lg p-5 flex flex-col gap-3">
       <div className="flex items-center gap-2">
@@ -270,13 +277,13 @@ function DailyFact({ fact, source }) {
           <Lightbulb size={13} className="text-marigold" />
         </div>
         <p className="text-xs font-sans font-semibold text-muted uppercase tracking-wide">
-          Did you know?
+          {t('dash_did_you_know')}
         </p>
       </div>
 
       <p className="text-sm font-sans text-ink leading-relaxed flex-1">{fact}</p>
 
-      <p className="text-[10px] font-sans text-muted">Source: {source}</p>
+      <p className="text-[10px] font-sans text-muted">{t('dash_source')}: {source}</p>
     </div>
   )
 }
@@ -315,7 +322,9 @@ function DashboardSkeleton() {
 
 // ── Main page component ───────────────────────────────────────────────────────
 function Dashboard() {
+  usePageTitle('Dashboard')
   const { user } = useAuth()
+  const { t }    = useLanguage()
 
   const [data,    setData]    = useState(null)
   const [loading, setLoading] = useState(true)
@@ -350,12 +359,10 @@ function Dashboard() {
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-semibold text-ink">
-          {getTimeGreeting()}, {firstName}.
+          {t(getGreetingKey())}, {firstName}.
         </h1>
         <p className="text-sm text-muted font-sans mt-0.5">
-          {testDone
-            ? 'Your career matches are ready — explore them below.'
-            : 'Take the aptitude test to unlock your personalised career matches.'}
+          {testDone ? t('dash_sub_done') : t('dash_sub_todo')}
         </p>
       </div>
 
@@ -368,7 +375,7 @@ function Dashboard() {
       {/* Career matches */}
       <div>
         <p className="text-xs font-sans font-semibold text-muted uppercase tracking-wide mb-3">
-          Top career matches
+          {t('dash_top_careers')}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {careerMatches.map(career => (

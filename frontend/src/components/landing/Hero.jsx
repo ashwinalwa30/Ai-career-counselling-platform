@@ -8,7 +8,8 @@ import { motion } from 'framer-motion'
 import { CheckCircle, Clock, BookOpen, Globe, ArrowRight, TrendingUp, MapPin } from 'lucide-react'
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts'
 
-import Button from '../ui/Button'
+import Button          from '../ui/Button'
+import { useLanguage } from '../../context/LanguageContext'
 
 // Mock aptitude scores for the decorative radar chart
 const APTITUDE_DATA = [
@@ -17,13 +18,6 @@ const APTITUDE_DATA = [
   { subject: 'Social',   score: 54 },
   { subject: 'Tech',     score: 93 },
   { subject: 'Verbal',   score: 72 },
-]
-
-const TRUST_CHIPS = [
-  { icon: CheckCircle, label: 'Free'            },
-  { icon: Clock,       label: '15 min test'     },
-  { icon: BookOpen,    label: '100+ careers'    },
-  { icon: Globe,       label: 'Hindi & English' },
 ]
 
 const ROADMAP_STEPS = [
@@ -65,6 +59,15 @@ function FloatingCard({ children, className = '', delay = 0, amplitude = 9, dura
 }
 
 function Hero() {
+  const { t } = useLanguage()
+
+  const TRUST_CHIPS = [
+    { icon: CheckCircle, label: t('hero_chip_free')    },
+    { icon: Clock,       label: t('hero_chip_time')    },
+    { icon: BookOpen,    label: t('hero_chip_careers') },
+    { icon: Globe,       label: t('hero_chip_lang')    },
+  ]
+
   return (
     <section id="home" className="relative overflow-hidden pt-28 pb-20 md:pt-36 md:pb-28">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
@@ -79,7 +82,7 @@ function Hero() {
           {/* Simple category label — not a glowing badge, just a small tag */}
           <motion.div variants={itemVariants}>
             <span className="inline-block text-xs font-semibold tracking-wide text-teal border border-teal/25 bg-teal/5 px-3 py-1 rounded-md font-sans">
-              AI-powered career counselling
+              {t('hero_label')}
             </span>
           </motion.div>
 
@@ -88,9 +91,9 @@ function Hero() {
             variants={itemVariants}
             className="text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold text-ink leading-tight"
           >
-            Discover the career{' '}
+            {t('hero_headline')}{' '}
             <span className="relative inline whitespace-nowrap">
-              you were made for
+              {t('hero_highlight')}
               {/*
                 Hand-drawn SVG underline in marigold.
                 preserveAspectRatio="none" stretches it to match text width.
@@ -116,19 +119,17 @@ function Hero() {
 
           {/* Sub-copy */}
           <motion.p variants={itemVariants} className="text-base text-muted leading-relaxed max-w-lg font-sans">
-            Take a free 15-minute AI aptitude test and get personalised career roadmaps,
-            skill plans, and step-by-step guidance — in Hindi and English for every
-            Class 8–12 student.
+            {t('hero_subtext')}
           </motion.p>
 
           {/* CTA buttons */}
           <motion.div variants={itemVariants} className="flex flex-wrap gap-3">
             <Button size="lg">
-              Take the free test
+              {t('hero_cta_primary')}
               <ArrowRight size={17} />
             </Button>
             <Button variant="outline" size="lg">
-              Explore careers
+              {t('hero_cta_outline')}
             </Button>
           </motion.div>
 

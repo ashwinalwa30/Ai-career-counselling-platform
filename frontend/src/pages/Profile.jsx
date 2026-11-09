@@ -11,6 +11,7 @@ import { Pencil, CheckCircle }  from 'lucide-react'
 import { useAuth }                                        from '../context/AuthContext'
 import { getProfile, updateProfile }                      from '../services/api'
 import { validateFullName, validateEmail, validatePhone } from '../utils/validation'
+import usePageTitle                                        from '../hooks/usePageTitle'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -434,6 +435,7 @@ function ProfileSkeleton() {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 function Profile() {
+  usePageTitle('Profile')
   const { user, updateUser }             = useAuth()
   const [profile,  setProfile]           = useState(null)
   const [loading,  setLoading]           = useState(true)

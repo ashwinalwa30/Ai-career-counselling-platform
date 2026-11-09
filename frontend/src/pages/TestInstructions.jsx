@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 
 import { getTestStatus } from '../services/api'
+import { useLanguage }   from '../context/LanguageContext'
+import usePageTitle       from '../hooks/usePageTitle'
 
 // ── Static content ────────────────────────────────────────────────────────────
 
@@ -31,23 +33,7 @@ const SECTION_DISPLAY = {
   interest_profile:  { Icon: Heart,    ring: 'bg-success/10 text-success',      border: 'border-success/20'    },
 }
 
-// Four summary chips shown at the top of the page
-const OVERVIEW_STATS = [
-  { icon: ListChecks, label: 'Total questions', value: '36' },
-  { icon: Layers,     label: 'Sections',        value: '5'  },
-  { icon: Clock,      label: 'Time limit',      value: '30 min' },
-  { icon: BarChart2,  label: 'Results',         value: 'Instant' },
-]
-
-// Rules listed below the section cards
-const RULES = [
-  'The timer counts down from 30 minutes. The test submits automatically when it reaches zero.',
-  'You can mark any question for review and return to it at any time before submitting.',
-  'Your answers save automatically — a page refresh will not lose your progress.',
-  'Once you click "Submit test", your answers cannot be changed.',
-  'Use the Previous / Next buttons or the question palette to move between questions.',
-  'The Interest Profile section has no right or wrong answers — just be honest for the most accurate career match.',
-]
+// OVERVIEW_STATS and RULES are now built inside the component via t()
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -70,6 +56,7 @@ function OverviewChip({ icon: Icon, label, value }) {
 function SectionCard({ section }) {
   const display = SECTION_DISPLAY[section.id]
   const Icon    = display.Icon
+  const { t }   = useLanguage()
 
   return (
     <div className={`flex items-start gap-3 p-4 bg-surface border ${display.border} rounded-lg`}>
@@ -80,7 +67,7 @@ function SectionCard({ section }) {
         <div className="flex items-center gap-2 flex-wrap">
           <p className="font-sans font-semibold text-sm text-ink">{section.label}</p>
           <span className="text-[10px] font-sans font-semibold px-2 py-0.5 rounded-full bg-edge text-muted">
-            {section.questionCount} {section.type === 'interest' ? 'statements' : 'questions'}
+            {section.questionCount} {section.type === 'interest' ? t('ti_statements') : t('ti_questions')}
           </span>
         </div>
         <p className="text-xs text-muted font-sans mt-0.5 leading-relaxed">
@@ -119,12 +106,26 @@ function InstructionsSkeleton() {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 function TestInstructions() {
-  const navigate = useNavigate()
+  usePageTitle('Aptitude Test')
+  const navigate  = useNavigate()
+  const { t }     = useLanguage()
 
   const [sections,   setSections]   = useState([])
   const [testStatus, setTestStatus] = useState(null)
   const [loading,    setLoading]    = useState(true)
   const [hasRead,    setHasRead]    = useState(false)
+
+  const OVERVIEW_STATS = [
+    { icon: ListChecks, label: t('ti_total_q'),   value: '36'          },
+    { icon: Layers,     label: t('ti_sections'),  value: '5'           },
+    { icon: Clock,      label: t('ti_time_limit'),value: t('ti_30min') },
+    { icon: BarChart2,  label: t('ti_results'),   value: t('ti_instant') },
+  ]
+
+  const RULES = [
+    t('ti_rule_1'), t('ti_rule_2'), t('ti_rule_3'),
+    t('ti_rule_4'), t('ti_rule_5'), t('ti_rule_6'),
+  ]
 
   useEffect(() => {
     getTestStatus().then(res => {
@@ -147,9 +148,9 @@ function TestInstructions() {
     >
       {/* Page heading */}
       <div>
-        <h1 className="text-2xl font-semibold text-ink">Aptitude Test</h1>
+        <h1 className="text-2xl font-semibold text-ink">{t('ti_heading')}</h1>
         <p className="text-sm text-muted font-sans mt-1">
-          Read the instructions carefully before you begin.
+          {t('ti_subheading')}
         </p>
       </div>
 
@@ -163,7 +164,7 @@ function TestInstructions() {
       {/* Section cards */}
       <div>
         <h2 className="text-xs font-sans font-semibold text-muted uppercase tracking-wide mb-3">
-          Sections
+          {t('ti_section_hdr')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {sections.map(section => (
@@ -175,7 +176,7 @@ function TestInstructions() {
       {/* Rules */}
       <div className="bg-surface border border-edge rounded-lg p-5">
         <h2 className="text-xs font-sans font-semibold text-muted uppercase tracking-wide mb-4">
-          Rules and guidelines
+          {t('ti_rules_hdr')}
         </h2>
         <ol className="space-y-3">
           {RULES.map((rule, i) => (
@@ -203,7 +204,7 @@ function TestInstructions() {
                 className="mt-0.5 w-4 h-4 rounded border-edge cursor-pointer accent-teal flex-shrink-0"
               />
               <span className="text-sm font-sans text-ink">
-                I have read and understood all the instructions above.
+                {t('ti_checkbox')}
               </span>
             </label>
 
@@ -212,13 +213,13 @@ function TestInstructions() {
               disabled={!hasRead}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-teal text-white font-sans font-semibold text-sm hover:bg-teal-dark transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Start test
+              {t('ti_start_btn')}
               <ChevronRight size={15} />
             </button>
 
             {!hasRead && (
               <p className="mt-3 text-xs text-muted font-sans">
-                Tick the checkbox above to enable the Start button.
+                {t('ti_checkbox_hint')}
               </p>
             )}
           </>
@@ -231,9 +232,9 @@ function TestInstructions() {
                 <AlertCircle size={16} className="text-marigold" />
               </div>
               <div>
-                <p className="font-sans font-semibold text-sm text-ink">Test in progress</p>
+                <p className="font-sans font-semibold text-sm text-ink">{t('ti_ip_title')}</p>
                 <p className="font-sans text-xs text-muted">
-                  You answered {testStatus.questionsAnswered} of {testStatus.totalQuestions} questions. Pick up where you left off.
+                  {t('ti_ip_desc', { answered: testStatus.questionsAnswered, total: testStatus.totalQuestions })}
                 </p>
               </div>
             </div>
@@ -241,7 +242,7 @@ function TestInstructions() {
               onClick={() => navigate('/dashboard/test/start')}
               className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-marigold text-ink font-sans font-semibold text-sm hover:bg-marigold-dk transition-colors cursor-pointer"
             >
-              Resume test
+              {t('ti_resume_btn')}
               <ChevronRight size={15} />
             </button>
           </div>
@@ -254,9 +255,9 @@ function TestInstructions() {
                 <CheckCircle size={16} className="text-success" />
               </div>
               <div>
-                <p className="font-sans font-semibold text-sm text-ink">Test completed</p>
+                <p className="font-sans font-semibold text-sm text-ink">{t('ti_done_title')}</p>
                 <p className="font-sans text-xs text-muted">
-                  You have already taken this test. View your results and career matches.
+                  {t('ti_done_desc')}
                 </p>
               </div>
             </div>
@@ -264,7 +265,7 @@ function TestInstructions() {
               onClick={() => navigate('/dashboard/results')}
               className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-teal text-white font-sans font-semibold text-sm hover:bg-teal-dark transition-colors cursor-pointer"
             >
-              View results
+              {t('ti_view_btn')}
               <ChevronRight size={15} />
             </button>
           </div>

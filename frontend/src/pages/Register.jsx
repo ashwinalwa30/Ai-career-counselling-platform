@@ -13,7 +13,8 @@ import {
   PenLine, Music, Trophy, Heart, Scale, GraduationCap,
 } from 'lucide-react'
 
-import { useAuth } from '../context/AuthContext'
+import { useAuth }  from '../context/AuthContext'
+import usePageTitle  from '../hooks/usePageTitle'
 import {
   validateFullName, validateEmail, validateNewPassword,
   validatePhone, passwordStrength,
@@ -374,6 +375,7 @@ function Step3Form({ data, errors, onToggle }) {
 
 // ── Main Register component ──────────────────────────────────────────────────
 function Register() {
+  usePageTitle('Create Account')
   const { register } = useAuth()
   const navigate     = useNavigate()
 

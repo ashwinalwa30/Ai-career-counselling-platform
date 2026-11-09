@@ -8,7 +8,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, Compass, CheckCircle, Info } from 'lucide-react'
 
-import { useAuth } from '../context/AuthContext'
+import { useAuth }       from '../context/AuthContext'
+import usePageTitle       from '../hooks/usePageTitle'
 import { validateEmail, validatePassword } from '../utils/validation'
 import Button from '../components/ui/Button'
 import Input  from '../components/ui/Input'
@@ -59,6 +60,7 @@ function RightPanel() {
 
 // ── Main Login page ──────────────────────────────────────────────────────────
 function Login() {
+  usePageTitle('Login')
   const { login }  = useAuth()
   const navigate   = useNavigate()
 

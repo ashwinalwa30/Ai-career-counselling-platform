@@ -5,8 +5,10 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Compass, ArrowLeft } from 'lucide-react'
+import usePageTitle from '../hooks/usePageTitle'
 
 function NotFound() {
+  usePageTitle('Page Not Found')
   return (
     <div className="min-h-screen bg-paper flex flex-col items-center justify-center px-4 py-16 text-center">
 

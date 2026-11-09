@@ -16,10 +16,12 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
   ResponsiveContainer,
 } from 'recharts'
-import { ClipboardList, ChevronRight } from 'lucide-react'
+import { ClipboardList, ChevronRight, Printer } from 'lucide-react'
 
-import { getResults } from '../services/api'
+import { getResults, getRecommendations } from '../services/api'
 import { useTheme }   from '../context/ThemeContext'
+import { useAuth }    from '../context/AuthContext'
+import usePageTitle    from '../hooks/usePageTitle'
 
 // ── Static data ───────────────────────────────────────────────────────────────
 
@@ -611,6 +613,200 @@ function CareerMatchesCTA() {
   )
 }
 
+// ── Print recommended next steps ──────────────────────────────────────────────
+
+/*
+  Fixed next steps shown in the printed report.
+  These are the same actions every student should take after seeing results.
+*/
+const PRINT_NEXT_STEPS = [
+  'Review your top career matches and shortlist 2–3 that excite you most.',
+  'Research the entrance exams required for each of your shortlisted careers.',
+  'Focus your Class 11–12 stream and subject choice on your strongest aptitude areas.',
+  'Speak with a subject teacher or career counsellor about your results.',
+  'Explore each career\'s full roadmap and college list in the Career Explorer.',
+]
+
+// ── Printable report ──────────────────────────────────────────────────────────
+
+/*
+  PrintableReport — a hidden div that is only visible when window.print() is called.
+  Contains a clean, plain-text-friendly layout: student details, scores, RIASEC,
+  top 5 career matches and next steps. No Recharts — just HTML percentage bars.
+  Wrapped in class="print-only" so CSS hides it on screen and shows it in print.
+*/
+function PrintableReport({ result, topCareers, user }) {
+  const { overallScore, sectionScores, riasecScores, topTypes, completedAt } = result
+
+  const summary = buildPersonalitySummary(topTypes)
+
+  return (
+    <div className="print-only" id="print-report">
+
+      {/* ── Header ── */}
+      <div className="print-card" style={{ borderBottom: '2px solid #0F5C52', paddingBottom: '12px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontSize: '22px', fontWeight: 700, fontFamily: 'serif', margin: '0 0 4px' }}>
+              Career Assessment Report
+            </p>
+            <p style={{ fontSize: '12px', color: '#6B645C', margin: 0 }}>PathFinder · AI Career Counselling</p>
+          </div>
+          <p style={{ fontSize: '11px', color: '#6B645C', textAlign: 'right', margin: 0 }}>
+            Completed on {formatDate(completedAt)}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Student details ── */}
+      <div className="print-card" style={{ background: '#F7F3EC', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+          <tbody>
+            <tr>
+              <td style={{ padding: '3px 8px 3px 0', color: '#6B645C', width: '120px' }}>Student</td>
+              <td style={{ padding: '3px 0', fontWeight: 600, color: '#1C1917' }}>{user?.fullName ?? '—'}</td>
+              <td style={{ padding: '3px 8px 3px 24px', color: '#6B645C', width: '100px' }}>Class</td>
+              <td style={{ padding: '3px 0', fontWeight: 600, color: '#1C1917' }}>Class {user?.class ?? '—'} · {user?.board ?? '—'}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '3px 8px 3px 0', color: '#6B645C' }}>School</td>
+              <td style={{ padding: '3px 0', fontWeight: 600, color: '#1C1917' }}>{user?.schoolName ?? '—'}</td>
+              <td style={{ padding: '3px 8px 3px 24px', color: '#6B645C' }}>State</td>
+              <td style={{ padding: '3px 0', fontWeight: 600, color: '#1C1917' }}>{user?.state ?? '—'}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Overall score ── */}
+      <div className="print-card" style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '24px' }}>
+        {/* Score circle */}
+        <div style={{
+          width: '80px', height: '80px', borderRadius: '50%', flexShrink: 0,
+          border: '6px solid #0F5C52', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <span style={{ fontSize: '22px', fontWeight: 700, color: '#0F5C52', lineHeight: 1 }}>{overallScore}</span>
+          <span style={{ fontSize: '9px', color: '#6B645C' }}>/ 100</span>
+        </div>
+        <div>
+          <p style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'serif', margin: '0 0 4px', color: '#1C1917' }}>
+            Overall Score: {overallScore}%
+          </p>
+          <p style={{ fontSize: '12px', color: '#6B645C', margin: 0 }}>{summary}</p>
+        </div>
+      </div>
+
+      {/* ── Aptitude section scores ── */}
+      <div className="print-card" style={{ marginBottom: '24px' }}>
+        <p style={{ fontSize: '13px', fontWeight: 700, margin: '0 0 10px', color: '#1C1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Aptitude Section Scores
+        </p>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+          <tbody>
+            {Object.entries(sectionScores).map(([id, score]) => (
+              <tr key={id} style={{ borderBottom: '1px solid #E4DDD1' }}>
+                <td style={{ padding: '7px 0', color: '#1C1917', fontWeight: 500, width: '180px' }}>
+                  {SECTION_LABELS[id] ?? id}
+                </td>
+                <td style={{ padding: '7px 12px' }}>
+                  {/* Visual percentage bar */}
+                  <div style={{ background: '#E4DDD1', borderRadius: '4px', height: '8px', overflow: 'hidden' }}>
+                    <div style={{ background: '#0F5C52', height: '100%', width: `${score}%`, borderRadius: '4px' }} />
+                  </div>
+                </td>
+                <td style={{ padding: '7px 0', textAlign: 'right', fontWeight: 700, color: '#0F5C52', width: '48px' }}>
+                  {score}%
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── RIASEC profile ── */}
+      <div className="print-card" style={{ marginBottom: '24px' }}>
+        <p style={{ fontSize: '13px', fontWeight: 700, margin: '0 0 10px', color: '#1C1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          RIASEC Personality Profile
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+          {Object.entries(riasecScores).map(([type, score]) => {
+            const rank    = topTypes.indexOf(type)
+            const isTop1  = rank === 0
+            const isTop2  = rank === 1
+            const bgColor = isTop1 ? '#0F5C52' : isTop2 ? '#E3A23B' : '#E4DDD1'
+            const txColor = isTop1 ? '#ffffff' : isTop2 ? '#1C1917' : '#6B645C'
+            return (
+              <div key={type} style={{
+                padding: '8px 10px', borderRadius: '6px', background: bgColor,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: txColor }}>
+                    {type} — {RIASEC_INFO[type]?.label}
+                  </span>
+                  <span style={{ fontWeight: 700, fontSize: '12px', color: txColor }}>{score} pts</span>
+                </div>
+                <p style={{ margin: '3px 0 0', fontSize: '10px', color: isTop1 ? 'rgba(255,255,255,0.75)' : '#6B645C' }}>
+                  {RIASEC_INFO[type]?.shortTrait}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Top 5 career matches ── */}
+      {topCareers.length > 0 && (
+        <div className="print-card" style={{ marginBottom: '24px' }}>
+          <p style={{ fontSize: '13px', fontWeight: 700, margin: '0 0 10px', color: '#1C1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Top 5 Career Matches
+          </p>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <thead>
+              <tr style={{ background: '#F7F3EC' }}>
+                <th style={{ padding: '6px 8px', textAlign: 'left', fontWeight: 600, color: '#6B645C', borderBottom: '1px solid #E4DDD1' }}>Career</th>
+                <th style={{ padding: '6px 8px', textAlign: 'left', fontWeight: 600, color: '#6B645C', borderBottom: '1px solid #E4DDD1' }}>Stream</th>
+                <th style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 600, color: '#6B645C', borderBottom: '1px solid #E4DDD1' }}>Match</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topCareers.map((career, i) => (
+                <tr key={career.id} style={{ borderBottom: '1px solid #E4DDD1' }}>
+                  <td style={{ padding: '7px 8px', fontWeight: 600, color: '#1C1917' }}>
+                    {i + 1}. {career.title}
+                  </td>
+                  <td style={{ padding: '7px 8px', color: '#6B645C' }}>{career.stream}</td>
+                  <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, color: '#0F5C52' }}>
+                    {career.matchPct}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ── Recommended next steps ── */}
+      <div className="print-card">
+        <p style={{ fontSize: '13px', fontWeight: 700, margin: '0 0 10px', color: '#1C1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Recommended Next Steps
+        </p>
+        <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '12px', color: '#1C1917' }}>
+          {PRINT_NEXT_STEPS.map((step, i) => (
+            <li key={i} style={{ padding: '4px 0', lineHeight: 1.5, color: '#6B645C' }}>
+              <span style={{ color: '#1C1917' }}>{step}</span>
+            </li>
+          ))}
+        </ol>
+        <p style={{ fontSize: '10px', color: '#6B645C', marginTop: '20px', borderTop: '1px solid #E4DDD1', paddingTop: '10px' }}>
+          Generated by PathFinder · This report is for personal guidance only.
+        </p>
+      </div>
+
+    </div>
+  )
+}
+
 // ── Empty state ────────────────────────────────────────────────────────────────
 
 /*
@@ -652,7 +848,7 @@ function EmptyState() {
 */
 function ResultsSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto space-y-5 animate-pulse">
+    <div className="max-w-3xl mx-auto space-y-5 px-4 sm:px-6 py-6 animate-pulse">
       <div className="bg-surface border border-edge rounded-xl h-36" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="bg-surface border border-edge rounded-xl h-72" />
@@ -670,16 +866,25 @@ function ResultsSkeleton() {
   Calls getResults on mount and passes the result down to sub-components.
 */
 export default function Results() {
+  usePageTitle('Results')
   const { theme } = useTheme()
+  const { user }  = useAuth()
   const colors    = CHART_COLORS[theme]
 
   // undefined = still loading; null = no test taken; object = results ready
-  const [result, setResult] = useState(undefined)
-  const [error,  setError]  = useState(null)
+  const [result,     setResult]     = useState(undefined)
+  const [topCareers, setTopCareers] = useState([])
+  const [error,      setError]      = useState(null)
 
   useEffect(() => {
-    getResults()
-      .then(res => setResult(res.data.result))
+    // Fetch results and recommendations in parallel
+    Promise.all([getResults(), getRecommendations()])
+      .then(([resResult, resRecs]) => {
+        setResult(resResult.data.result)
+        // Keep only top 5 matches that have a matchPct
+        const withPct = resRecs.data.careers.filter(c => c.matchPct != null)
+        setTopCareers(withPct.slice(0, 5))
+      })
       .catch(err => setError(err.message))
   }, [])
 
@@ -694,28 +899,51 @@ export default function Results() {
   const { sectionScores, riasecScores, topTypes, strengths, weaknesses } = result
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y:  0 }}
-      transition={{ duration: 0.4 }}
-      className="max-w-3xl mx-auto space-y-5"
-    >
-      <ResultsHeader result={result} colors={colors} />
+    <>
+      {/* ── On-screen results (hidden when printing) ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y:  0 }}
+        transition={{ duration: 0.4 }}
+        className="no-print max-w-3xl mx-auto space-y-5 px-4 sm:px-6 py-6"
+      >
+        {/* Page title + Download button */}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="font-serif text-xl font-semibold text-ink">Your Results</h1>
+            <p className="text-xs font-sans text-muted mt-0.5">
+              Aptitude scores, personality profile and career matches.
+            </p>
+          </div>
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-edge text-sm font-sans font-semibold text-muted hover:text-ink hover:border-teal/40 transition-colors cursor-pointer"
+          >
+            <Printer size={14} />
+            Download report
+          </button>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <SectionRadarChart sectionScores={sectionScores} colors={colors} />
-        <SectionBarChart   sectionScores={sectionScores} strengths={strengths} colors={colors} />
-      </div>
+        <ResultsHeader result={result} colors={colors} />
 
-      <RiasecSection riasecScores={riasecScores} topTypes={topTypes} colors={colors} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <SectionRadarChart sectionScores={sectionScores} colors={colors} />
+          <SectionBarChart   sectionScores={sectionScores} strengths={strengths} colors={colors} />
+        </div>
 
-      <StrengthsWeaknessesSection
-        sectionScores={sectionScores}
-        strengths={strengths}
-        weaknesses={weaknesses}
-      />
+        <RiasecSection riasecScores={riasecScores} topTypes={topTypes} colors={colors} />
 
-      <CareerMatchesCTA />
-    </motion.div>
+        <StrengthsWeaknessesSection
+          sectionScores={sectionScores}
+          strengths={strengths}
+          weaknesses={weaknesses}
+        />
+
+        <CareerMatchesCTA />
+      </motion.div>
+
+      {/* ── Print-only report (hidden on screen, shown in print) ── */}
+      <PrintableReport result={result} topCareers={topCareers} user={user} />
+    </>
   )
 }

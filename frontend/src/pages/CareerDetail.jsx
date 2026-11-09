@@ -25,6 +25,7 @@ import { ArrowLeft, ChevronRight, BookOpen, Building2, Sun, TrendingUp } from 'l
 
 import { getCareerById, getRecommendations } from '../services/api'
 import { useTheme }                           from '../context/ThemeContext'
+import usePageTitle                            from '../hooks/usePageTitle'
 
 // ── Chart colours (same pattern as Results.jsx) ───────────────────────────────
 
@@ -395,7 +396,7 @@ function RelatedCareerCard({ career, hasResults }) {
 */
 function DetailSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto space-y-5 animate-pulse">
+    <div className="max-w-3xl mx-auto space-y-5 px-4 sm:px-6 py-6 animate-pulse">
       <div className="h-40 bg-surface border border-edge rounded-xl" />
       <div className="h-96 bg-surface border border-edge rounded-xl" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -421,6 +422,9 @@ export default function CareerDetail() {
   const colors    = CHART_COLORS[theme]
 
   const [career,         setCareer]         = useState(null)
+
+  // Dynamic page title — updates once the career name loads
+  usePageTitle(career?.title ?? 'Career Detail')
   const [matchPct,       setMatchPct]       = useState(null)
   const [hasResults,     setHasResults]     = useState(false)
   const [relatedCareers, setRelatedCareers] = useState([])
@@ -455,7 +459,7 @@ export default function CareerDetail() {
   if (loading) return <DetailSkeleton />
 
   if (error) return (
-    <div className="max-w-3xl mx-auto py-16 text-center space-y-3">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center space-y-3">
       <p className="font-sans font-semibold text-ink">Career not found</p>
       <p className="text-sm font-sans text-muted">{error}</p>
       <Link to="/dashboard/careers" className="text-sm font-sans font-semibold text-teal hover:text-teal-dark">
@@ -473,7 +477,7 @@ export default function CareerDetail() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="max-w-3xl mx-auto space-y-5 pb-10"
+      className="max-w-3xl mx-auto space-y-5 pb-10 px-4 sm:px-6 py-6"
     >
       <DetailHeader
         career={career}

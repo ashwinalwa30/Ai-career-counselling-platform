@@ -423,3 +423,137 @@ export async function getRecommendations() {
     message: 'Recommendations calculated',
   }
 }
+
+// ── AI Counsellor chat ────────────────────────────────────────────────────────
+
+/*
+  sendChatMessage — returns a helpful counsellor reply for the student's message.
+
+  !! AI INTEGRATION POINT !!
+  Replace this entire function body with a real API call when the AI model is ready:
+
+    POST /api/chat
+    Body: { message, context: { testResult, topCareers } }
+    Response: { success, data: { reply: string }, message }
+
+  The AI team should receive `lastTestResult` and top-3 career titles as context
+  so the model can personalise its answers. The component interface (message in,
+  reply string out) stays the same — only this function body changes.
+*/
+export async function sendChatMessage(message) {
+  // Simulate a realistic AI "thinking" delay
+  await wait(1200 + Math.random() * 800)
+
+  const q = message.toLowerCase().trim()
+
+  // Build personalised context from test results when available
+  const hasResults  = !!lastTestResult
+  const score       = lastTestResult?.overallScore
+  const topCareers  = hasResults
+    ? CAREERS
+        .map(c => {
+          const rp = (c.riasecTypes || [])
+            .reduce((s, t) => s + (lastTestResult.riasecScores?.[t] ?? 0), 0)
+          return { ...c, matchPct: Math.round(0.5 * Math.min(100, Math.round((rp / 12) * 100)) + 0.5 * 50) }
+        })
+        .sort((a, b) => b.matchPct - a.matchPct)
+        .slice(0, 3)
+        .map(c => c.title)
+    : []
+
+  // ── Keyword-matched responses ─────────────────────────────────────────────
+
+  if (q.includes('stream') || q.includes('pcm') || q.includes('pcb') || q.includes('arts') || q.includes('commerce')) {
+    if (hasResults && topCareers.length) {
+      return {
+        success: true,
+        data: { reply: `Based on your aptitude test (overall score: ${score}%), your profile aligns well with careers like **${topCareers.join(', ')}**. These usually require PCM or Commerce streams depending on the specific path. Would you like to explore one of these in detail?` },
+        message: 'Reply generated',
+      }
+    }
+    return {
+      success: true,
+      data: { reply: `Choosing a stream depends on your aptitude and interests. PCM opens doors to engineering, medicine, and technology. Commerce leads to finance, management, and law. Arts/Humanities suits those strong in social sciences, literature, and media. I'd recommend taking the aptitude test first — it'll give you a personalised match score for each field. Want me to explain what the test covers?` },
+      message: 'Reply generated',
+    }
+  }
+
+  if (q.includes('class 10') || q.includes('after 10') || q.includes('10th')) {
+    return {
+      success: true,
+      data: { reply: `After Class 10, you have three main options:\n\n1. **Science (PCM)** — for engineering, technology, or pure sciences.\n2. **Science (PCB)** — for medicine, pharmacy, or biotech.\n3. **Commerce** — for CA, economics, finance, or management.\n4. **Arts/Humanities** — for law, journalism, design, civil services, or social work.\n\nChoose based on what subjects excite you most and the careers you're drawn to. It's not irreversible — many paths switch later. What are your strongest subjects right now?` },
+      message: 'Reply generated',
+    }
+  }
+
+  if (q.includes('jee') || q.includes('neet') || q.includes('entrance') || q.includes('exam')) {
+    return {
+      success: true,
+      data: { reply: `Here's a quick overview of key entrance exams:\n\n**Engineering:** JEE Main (NIT/IIIT), JEE Advanced (IIT), BITSAT (BITS Pilani)\n**Medicine:** NEET-UG (all medical colleges)\n**Law:** CLAT (National Law Universities)\n**Management:** CAT/MAT (MBA, post-graduation)\n**Civil Services:** UPSC CSE (IAS/IPS/IFS)\n\nFor JEE/NEET, start preparation in Class 11 itself — consistent practice and NCERT mastery are the foundation. Which exam are you targeting?` },
+      message: 'Reply generated',
+    }
+  }
+
+  if (q.includes('data science') || q.includes('ai') || q.includes('artificial intelligence') || q.includes('machine learning')) {
+    return {
+      success: true,
+      data: { reply: `Data Science and AI are among the fastest-growing fields in India. Here's the roadmap:\n\n1. **Build the base:** Strong Mathematics (Class 11–12) — especially Statistics, Linear Algebra, and Calculus.\n2. **Degree:** B.Tech CSE, B.Sc Statistics/Maths, or B.Sc Data Science.\n3. **Skills to learn:** Python, SQL, Machine Learning libraries (NumPy, Pandas, scikit-learn).\n4. **Top colleges:** IITs, IISc, BITS, NITs, CMI Chennai.\n\nData Scientists earn ₹8–30L at entry level. The demand is huge, especially in fintech, healthcare, and e-commerce. Want to see the full roadmap?` },
+      message: 'Reply generated',
+    }
+  }
+
+  if (q.includes('doctor') || q.includes('medicine') || q.includes('mbbs') || q.includes('medical')) {
+    return {
+      success: true,
+      data: { reply: `Becoming a doctor in India requires dedication and long-term planning:\n\n1. **Class 11–12:** Science with PCB — focus heavily on Biology and Chemistry.\n2. **NEET-UG:** The single entrance exam for all government and private medical colleges. Target 600+ out of 720.\n3. **MBBS:** 5.5 years (4.5 years + 1 year internship).\n4. **Post-graduation:** MD/MS is highly recommended for specialisation.\n\nTop colleges: AIIMS Delhi, CMC Vellore, Kasturba Medical College. The path is long but deeply rewarding. Are you interested in a specialisation like surgery, psychiatry, or paediatrics?` },
+      message: 'Reply generated',
+    }
+  }
+
+  if (q.includes('engineer') || q.includes('engineering') || q.includes('b.tech') || q.includes('btech')) {
+    return {
+      success: true,
+      data: { reply: `Engineering remains one of India's most popular career paths. Key branches:\n\n- **CS/IT:** Software, AI, cybersecurity — highest demand.\n- **Mechanical:** Manufacturing, aerospace, automotive.\n- **Civil:** Infrastructure, urban planning, construction.\n- **Electronics:** Telecom, embedded systems, VLSI.\n\nFor top colleges (IIT/NIT), prepare seriously for JEE from Class 11. For state universities, check state CETs. Entry salaries range from ₹3.5L (tier-3) to ₹20L+ (IIT campus placements). Which branch interests you?` },
+      message: 'Reply generated',
+    }
+  }
+
+  if (q.includes('ias') || q.includes('upsc') || q.includes('civil service') || q.includes('civil services')) {
+    return {
+      success: true,
+      data: { reply: `Civil Services is a highly prestigious and challenging path:\n\n1. **Any degree** qualifies — there's no specific stream requirement. Many toppers come from engineering, arts, and science backgrounds.\n2. **UPSC CSE:** 3 stages — Prelims, Mains, Interview. Minimum age: 21; Maximum: 32 (General).\n3. **Preparation:** Typically 1–3 years of dedicated study. Start with NCERT books (Class 6–12) for the base.\n4. **Top resources:** Vajiram & Ravi, Insight IAS, ForumIAS (online).\n\nIf you're in Class 11–12, focus on building strong reading habits and current affairs awareness now. Would you like preparation tips specific to your current class?` },
+      message: 'Reply generated',
+    }
+  }
+
+  if (q.includes('salary') || q.includes('earn') || q.includes('money') || q.includes('pay') || q.includes('income')) {
+    if (hasResults && topCareers.length) {
+      return {
+        success: true,
+        data: { reply: `Based on your profile, your top matches — **${topCareers.join(', ')}** — have strong earning potential. In India, salaries grow significantly with experience: most careers see a 3–5× jump from entry to senior level.\n\nFor example, a Software Engineer starts at ₹5–10L and can reach ₹30–80L+ in senior/principal roles. Would you like detailed salary info for any specific career?` },
+        message: 'Reply generated',
+      }
+    }
+    return {
+      success: true,
+      data: { reply: `Salary varies hugely by career, college, city, and skills. As a rough guide for India:\n\n- **Tech/Engineering:** ₹5–15L entry, ₹20–80L+ senior\n- **Medicine:** ₹6–10L post-internship, ₹20–60L+ specialist\n- **Finance/CA:** ₹7–12L entry, ₹25–60L+ senior\n- **Civil Services:** Pay as per 7th CPC + allowances (₹56K–₹2.5L/month)\n- **Design/Media:** ₹3–6L entry, varies widely\n\nSalary is important, but job satisfaction and growth matter just as much. Which career's salary are you curious about?` },
+      message: 'Reply generated',
+    }
+  }
+
+  // Generic personalised fallback when results are available
+  if (hasResults && topCareers.length) {
+    return {
+      success: true,
+      data: { reply: `That's a great question! Based on your aptitude score of **${score}%**, your profile matches well with **${topCareers.join(', ')}**. If your question is about one of these careers — or any other field — feel free to ask and I'll give you a detailed answer. I can also help with entrance exams, college choices, subject selection, or what to do after Class 10/12.` },
+      message: 'Reply generated',
+    }
+  }
+
+  // Generic fallback with no results
+  return {
+    success: true,
+    data: { reply: `That's a thoughtful question! To give you a more personalised answer, I'd recommend taking the aptitude test first — it takes about 30 minutes and helps me understand your strengths and interests.\n\nIn the meantime, I can help you with:\n- Choosing between streams (Science/Commerce/Arts)\n- Understanding entrance exams (JEE, NEET, CLAT, UPSC)\n- Exploring specific careers\n- College and course selection\n\nWhat would you like to know more about?` },
+    message: 'Reply generated',
+  }
+}

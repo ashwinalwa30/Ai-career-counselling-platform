@@ -14,6 +14,7 @@ import { motion }                        from 'framer-motion'
 import { Search, X, ChevronRight }       from 'lucide-react'
 
 import { getCareers } from '../services/api'
+import usePageTitle   from '../hooks/usePageTitle'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -131,6 +132,7 @@ function ExploreSkeleton() {
   specific stream is selected.
 */
 export default function CareerExplore() {
+  usePageTitle('Career Explorer')
   const [allCareers,   setAllCareers]   = useState([])
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState(null)
@@ -182,7 +184,7 @@ export default function CareerExplore() {
   if (error)   return <div className="py-16 text-center font-sans text-sm text-error">{error}</div>
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5 pb-10">
+    <div className="max-w-5xl mx-auto space-y-5 pb-10 px-4 sm:px-6 py-6">
 
       {/* Intro + link to personalised recommendations */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
