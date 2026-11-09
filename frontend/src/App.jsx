@@ -21,6 +21,9 @@ import TestInstructions from './pages/TestInstructions'
 import TestPage         from './pages/TestPage'
 import Results          from './pages/Results'
 import Careers          from './pages/Careers'
+import CareerDetail     from './pages/CareerDetail'
+import CareerExplore    from './pages/CareerExplore'
+import CareerCompare    from './pages/CareerCompare'
 import ComingSoon       from './pages/ComingSoon'
 import NotFound         from './pages/NotFound'
 import UiShowcase     from './pages/UiShowcase'
@@ -49,7 +52,9 @@ function App() {
               <Route path="test"            element={<TestInstructions />} />
               <Route path="results"         element={<Results />} />
               <Route path="careers"         element={<Careers />} />
-              <Route path="careers/:id"    element={<ComingSoon />} />
+              <Route path="careers/:id"    element={<CareerDetail />} />
+              <Route path="explore"         element={<CareerExplore />} />
+              <Route path="compare"         element={<CareerCompare />} />
               <Route path="counsellor"      element={<ComingSoon />} />
               <Route path="profile"         element={<Profile />}   />
             </Route>
