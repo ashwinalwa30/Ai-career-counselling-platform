@@ -8,6 +8,7 @@ import { AuthProvider }  from './context/AuthContext'
 
 import ProtectedRoute  from './components/layout/ProtectedRoute'
 import PublicOnlyRoute from './components/layout/PublicOnlyRoute'
+import ErrorBoundary   from './components/ErrorBoundary'
 
 import Home           from './pages/Home'
 import Login          from './pages/Login'
@@ -18,6 +19,7 @@ import Dashboard        from './pages/Dashboard'
 import Profile          from './pages/Profile'
 import TestInstructions from './pages/TestInstructions'
 import TestPage         from './pages/TestPage'
+import Results          from './pages/Results'
 import ComingSoon       from './pages/ComingSoon'
 import NotFound         from './pages/NotFound'
 import UiShowcase     from './pages/UiShowcase'
@@ -27,6 +29,7 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
+          <ErrorBoundary>
           <Routes>
             {/* Public pages */}
             <Route path="/" element={<Home />} />
@@ -43,7 +46,7 @@ function App() {
             >
               <Route index                  element={<Dashboard />}  />
               <Route path="test"            element={<TestInstructions />} />
-              <Route path="results"         element={<ComingSoon />} />
+              <Route path="results"         element={<Results />} />
               <Route path="careers"         element={<ComingSoon />} />
               <Route path="counsellor"      element={<ComingSoon />} />
               <Route path="profile"         element={<Profile />}   />
@@ -59,6 +62,7 @@ function App() {
             {/* 404 — catch-all for any unknown path */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

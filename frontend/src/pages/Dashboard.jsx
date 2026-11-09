@@ -131,7 +131,9 @@ function TestStatusCard({ testStatus }) {
       badge:    'Completed',
       badgeCls: 'bg-success/10 text-success',
       heading:  'Your results are ready',
-      body:     'See your aptitude scores and matched career paths.',
+      body:     testStatus.overallScore != null
+                  ? `You scored ${testStatus.overallScore}% overall · See your matched careers`
+                  : 'See your aptitude scores and matched career paths.',
       btnLabel: 'View results',
       btnCls:   'bg-teal text-white hover:bg-teal-dark',
       onClick:  () => navigate('/dashboard/results'),
