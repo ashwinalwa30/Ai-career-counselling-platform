@@ -10,7 +10,6 @@ import MOCK_USERS from '../data/users.js'
 import {
   PROFILE_COMPLETION,
   TEST_STATUS,
-  TOP_CAREER_MATCHES,
   NEXT_STEPS,
   CAREER_FACTS,
 } from '../data/dashboard.js'
@@ -203,9 +202,8 @@ export async function getDashboardData(userId) {   // eslint-disable-line no-unu
         ...testState,
         overallScore: lastTestResult?.overallScore ?? null,
       },
-      careerMatches:     TOP_CAREER_MATCHES,
-      nextSteps:         NEXT_STEPS,
-      dailyFact:         todaysFact,
+      nextSteps:  NEXT_STEPS,
+      dailyFact:  todaysFact,
     },
     message: 'Dashboard data loaded',
   }

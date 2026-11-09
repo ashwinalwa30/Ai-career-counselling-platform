@@ -189,6 +189,8 @@ export default function Counsellor() {
     // Append the student's message immediately
     const studentMsg = { id: Date.now(), role: 'student', text: trimmed, ts: Date.now() }
     setMessages(prev => [...prev, studentMsg])
+    // Mark "Chat with the AI counsellor" step as done in the dashboard next-steps list
+    localStorage.setItem('pf-chat-sent', 'true')
     setInput('')
     setTyping(true)
 
@@ -234,27 +236,29 @@ export default function Counsellor() {
         </p>
       </div>
 
-      {/* Message feed — scrollable */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3 min-h-0">
-        {messages.map(msg => (
-          <ChatBubble key={msg.id} message={msg} />
-        ))}
+      {/* Message feed — scrollable, centred with max-width to stay readable on wide screens */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 space-y-3">
+          {messages.map(msg => (
+            <ChatBubble key={msg.id} message={msg} />
+          ))}
 
-        <AnimatePresence>
-          {typing && (
-            <motion.div
-              key="typing"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-            >
-              <TypingIndicator />
-            </motion.div>
-          )}
-        </AnimatePresence>
+          <AnimatePresence>
+            {typing && (
+              <motion.div
+                key="typing"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                <TypingIndicator />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Invisible anchor element — scrollIntoView targets this */}
-        <div ref={bottomRef} />
+          {/* Invisible anchor element — scrollIntoView targets this */}
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* Suggested chips — shown only before the student's first message */}

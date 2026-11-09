@@ -848,7 +848,7 @@ function EmptyState() {
 */
 function ResultsSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto space-y-5 px-4 sm:px-6 py-6 animate-pulse">
+    <div className="max-w-7xl mx-auto space-y-5 px-4 sm:px-6 py-6 animate-pulse">
       <div className="bg-surface border border-edge rounded-xl h-36" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="bg-surface border border-edge rounded-xl h-72" />
@@ -905,7 +905,7 @@ export default function Results() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y:  0 }}
         transition={{ duration: 0.4 }}
-        className="no-print max-w-3xl mx-auto space-y-5 px-4 sm:px-6 py-6"
+        className="no-print max-w-7xl mx-auto space-y-5 px-4 sm:px-6 py-6"
       >
         {/* Page title + Download button */}
         <div className="flex items-center justify-between gap-4 flex-wrap">

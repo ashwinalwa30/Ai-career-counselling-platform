@@ -87,7 +87,7 @@ function Skeleton({ className = '' }) {
 
 function InstructionsSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div className="space-y-2">
         <Skeleton className="h-7 w-48" />
         <Skeleton className="h-4 w-72" />
@@ -141,7 +141,7 @@ function TestInstructions() {
 
   return (
     <motion.div
-      className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6"
+      className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}

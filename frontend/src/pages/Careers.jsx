@@ -206,7 +206,7 @@ function NoTestBanner() {
 */
 function CareersSkeleton() {
   return (
-    <div className="max-w-5xl mx-auto space-y-5 px-4 sm:px-6 pt-6">
+    <div className="max-w-7xl mx-auto space-y-5 px-4 sm:px-6 pt-6">
       <div className="h-16 bg-edge rounded-xl animate-pulse" />
       <div className="h-10 bg-edge rounded-xl animate-pulse" />
       <div className="flex gap-2">
@@ -214,7 +214,7 @@ function CareersSkeleton() {
           <div key={i} className="h-7 w-24 bg-edge rounded-full animate-pulse flex-shrink-0" />
         ))}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="h-56 bg-surface border border-edge rounded-xl animate-pulse" />
         ))}
@@ -360,7 +360,7 @@ export default function Careers() {
   if (error)   return <div className="py-16 text-center font-sans text-sm text-error">{error}</div>
 
   return (
-    <div className="max-w-5xl mx-auto space-y-4 pb-28 px-4 sm:px-6 pt-6">
+    <div className="max-w-7xl mx-auto space-y-4 pb-28 px-4 sm:px-6 pt-6">
 
       {!hasResults && <NoTestBanner />}
 
@@ -457,7 +457,7 @@ export default function Careers() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map((career, i) => (
             <motion.div
               key={career.id}

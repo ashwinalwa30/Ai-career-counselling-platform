@@ -32,41 +32,6 @@ const TEST_STATUS = {
   completedAt:       null,
 }
 
-// ── Top career matches ────────────────────────────────────────────────────────
-/*
-  These are the top 3 results from the aptitude test.
-  They are shown blurred on the dashboard until the test is completed.
-*/
-const TOP_CAREER_MATCHES = [
-  {
-    id:          'ux-designer',
-    title:       'UX / Product Designer',
-    stream:      'Design & Technology',
-    matchPct:    92,
-    icon:        '🎨',
-    description: 'Create digital experiences that are both beautiful and easy to use.',
-    tags:        ['Creative', 'Technical', 'High demand'],
-  },
-  {
-    id:          'software-engineer',
-    title:       'Software Engineer',
-    stream:      'Engineering & Technology',
-    matchPct:    87,
-    icon:        '💻',
-    description: 'Build the software and systems that power modern life.',
-    tags:        ['Logical', 'Problem-solving', 'Well-paid'],
-  },
-  {
-    id:          'data-analyst',
-    title:       'Data Analyst',
-    stream:      'Science & Analytics',
-    matchPct:    81,
-    icon:        '📊',
-    description: 'Turn raw numbers into insights that help organisations make decisions.',
-    tags:        ['Analytical', 'Growing field', 'Versatile'],
-  },
-]
-
 // ── Next-steps checklist ──────────────────────────────────────────────────────
 /*
   A short action list for the student. 'done' is updated locally on the dashboard
@@ -80,52 +45,42 @@ const NEXT_STEPS = [
   { id: 'ns_5', text: 'Chat with the AI counsellor',        done: false },
 ]
 
-// ── Daily career facts ────────────────────────────────────────────────────────
+// ── Daily career tips ─────────────────────────────────────────────────────────
 /*
-  One fact is shown per day — we pick today's by using the day-of-year as an index.
-  Writing 10 facts covers every possible day of the week rotation comfortably.
+  One tip is shown per day — we pick today's by using the day-of-year as an index.
+  These are general, factual career guidance tips that do not require a citation.
 */
 const CAREER_FACTS = [
   {
-    fact:   'India will need 1 crore+ cybersecurity professionals by 2030, but currently has only a fraction of that.',
-    source: 'NASSCOM, 2023',
+    fact:   'CUET is now the common entrance test for most central universities in India — one application covers many colleges.',
   },
   {
-    fact:   'UX design roles in India grew by 40% in 2023, driven by rapid growth in fintech and edtech.',
-    source: 'LinkedIn India Jobs Report',
+    fact:   'JEE Main is conducted multiple times a year. Only your best score is considered for the final merit list.',
   },
   {
-    fact:   'The average starting salary for a data scientist in India is ₹8–12 LPA, rising steeply with experience.',
-    source: 'AmbitionBox, 2024',
+    fact:   'NEET is the single entrance exam for all MBBS and BDS programmes at government and private medical colleges.',
   },
   {
-    fact:   'Doctors in rural India are 8× more impactful per capita than those in metro cities, says a WHO study.',
-    source: 'WHO India Report',
+    fact:   'Commerce with Mathematics opens doors to both finance and economics degrees as well as some engineering-adjacent fields.',
   },
   {
-    fact:   'Animation and VFX is a ₹1,500 crore industry in India, projected to triple by 2027.',
-    source: 'FICCI-EY M&E Report',
+    fact:   'Skills like coding, graphic design, and content writing can be built through self-study and do not always require a formal degree.',
   },
   {
-    fact:   'Class 12 students who talk to a career counsellor are 2× more likely to choose a satisfying career.',
-    source: 'UNICEF Education Study',
+    fact:   'Internships and personal projects carry significant weight when applying for jobs in design, media, and technology.',
   },
   {
-    fact:   'The Indian EdTech sector has created over 50,000 jobs — many of which didn\'t exist a decade ago.',
-    source: 'IBEF Report, 2024',
+    fact:   'India has over 1,000 universities — exploring different options early gives you more choices at admission time.',
   },
   {
-    fact:   'Environmental science and sustainability careers are growing 15% faster than the overall job market.',
-    source: 'Ministry of Environment, 2023',
+    fact:   'Board exam scores matter most for direct state counselling admissions; entrance exams like JEE weigh them differently.',
   },
   {
-    fact:   'More than 60% of today\'s Class 8 students will work in jobs that do not exist yet.',
-    source: 'World Economic Forum',
+    fact:   'Taking an aptitude test helps identify career areas that match your natural strengths and learning style.',
   },
   {
-    fact:   'India produces the second-largest number of STEM graduates in the world after China.',
-    source: 'UNESCO Science Report',
+    fact:   'Many students who switch careers later say they wish they had explored more options before choosing their Class 11 stream.',
   },
 ]
 
-export { PROFILE_COMPLETION, TEST_STATUS, TOP_CAREER_MATCHES, NEXT_STEPS, CAREER_FACTS }
+export { PROFILE_COMPLETION, TEST_STATUS, NEXT_STEPS, CAREER_FACTS }

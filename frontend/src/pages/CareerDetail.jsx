@@ -396,7 +396,7 @@ function RelatedCareerCard({ career, hasResults }) {
 */
 function DetailSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto space-y-5 px-4 sm:px-6 py-6 animate-pulse">
+    <div className="max-w-7xl mx-auto space-y-5 px-4 sm:px-6 py-6 animate-pulse">
       <div className="h-40 bg-surface border border-edge rounded-xl" />
       <div className="h-96 bg-surface border border-edge rounded-xl" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -431,6 +431,11 @@ export default function CareerDetail() {
   const [loading,        setLoading]        = useState(true)
   const [error,          setError]          = useState(null)
 
+  // Mark "Explore a career roadmap" step as done in the dashboard next-steps list
+  useEffect(() => {
+    localStorage.setItem('pf-roadmap-opened', 'true')
+  }, [])
+
   useEffect(() => {
     setLoading(true)
     setCareer(null)
@@ -459,7 +464,7 @@ export default function CareerDetail() {
   if (loading) return <DetailSkeleton />
 
   if (error) return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center space-y-3">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center space-y-3">
       <p className="font-sans font-semibold text-ink">Career not found</p>
       <p className="text-sm font-sans text-muted">{error}</p>
       <Link to="/dashboard/careers" className="text-sm font-sans font-semibold text-teal hover:text-teal-dark">
@@ -477,7 +482,7 @@ export default function CareerDetail() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="max-w-3xl mx-auto space-y-5 pb-10 px-4 sm:px-6 py-6"
+      className="max-w-7xl mx-auto space-y-5 pb-10 px-4 sm:px-6 py-6"
     >
       <DetailHeader
         career={career}
