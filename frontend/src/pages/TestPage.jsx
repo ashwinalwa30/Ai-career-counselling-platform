@@ -5,10 +5,12 @@
   Timer (Step 5), QuestionPalette (Step 4) and submission (Step 6) are added
   in later steps.
 */
-import { useNavigate }  from 'react-router-dom'
-import { motion }       from 'framer-motion'
+import { useNavigate }         from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Compass, ChevronLeft, ChevronRight, CheckCircle, Flag,
+  AlertTriangle, Loader2,
 } from 'lucide-react'
 
 import { TestProvider, useTest }                from '../context/TestContext'
@@ -247,7 +249,11 @@ function QuestionCard() {
   Mark for review in between. Submit replaces Next on the last question.
   The submit handler is a placeholder — real logic added in Step 6.
 */
-function NavigationBar() {
+/*
+  NavigationBar — Prev / Next / Submit controls.
+  Receives onSubmitClick so TestPageContent can open the confirmation modal.
+*/
+function NavigationBar({ onSubmitClick }) {
   const {
     currentQuestion, answers, markedForReview,
     isFirst, isLast, toggleMark, clearAnswer, goToNext, goToPrev,
@@ -299,9 +305,9 @@ function NavigationBar() {
 
       {/* Next / Submit */}
       {isLast ? (
-        // Submit is a placeholder until Step 6 wires the modal + api call
         <button
           id="test-submit-btn"
+          onClick={onSubmitClick}
           className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-teal text-white text-sm font-sans font-semibold hover:bg-teal-dark transition-colors cursor-pointer"
         >
           Submit test
@@ -317,6 +323,105 @@ function NavigationBar() {
         </button>
       )}
     </div>
+  )
+}
+
+// ── Submit confirmation modal ─────────────────────────────────────────────────
+/*
+  SubmitModal — dimmed overlay + centred card asking the student to confirm.
+  Shows answered / total count and a warning if any questions are unanswered
+  or still marked for review. Disabled while submission is in flight.
+*/
+function SubmitModal({ open, onCancel, onConfirm, submitting }) {
+  const { questions, answeredCount, markedForReview } = useTest()
+  const unanswered = questions.length - answeredCount
+  const markedCount = markedForReview.size
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            key="modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-ink/60 z-50"
+            onClick={!submitting ? onCancel : undefined}
+          />
+
+          {/* Card */}
+          <motion.div
+            key="modal-card"
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1,    y: 0  }}
+            exit={{    opacity: 0, scale: 0.95, y: 12 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"
+          >
+            <div className="bg-surface border border-edge rounded-xl shadow-xl w-full max-w-sm p-6 pointer-events-auto">
+
+              <h2 className="font-sans font-bold text-base text-ink mb-1">
+                Submit your test?
+              </h2>
+              <p className="font-sans text-sm text-muted mb-5">
+                Once submitted you cannot change your answers.
+              </p>
+
+              {/* Answer summary */}
+              <div className="bg-paper border border-edge rounded-lg px-4 py-3 mb-4 space-y-2">
+                <div className="flex items-center justify-between text-sm font-sans">
+                  <span className="text-muted">Answered</span>
+                  <span className="font-semibold text-ink">{answeredCount} / {questions.length}</span>
+                </div>
+                {markedCount > 0 && (
+                  <div className="flex items-center justify-between text-sm font-sans">
+                    <span className="text-muted">Marked for review</span>
+                    <span className="font-semibold text-marigold">{markedCount}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Warning if anything unanswered */}
+              {unanswered > 0 && (
+                <div className="flex items-start gap-2 bg-marigold/10 border border-marigold/25 rounded-lg px-3 py-2.5 mb-5">
+                  <AlertTriangle size={14} className="text-marigold flex-shrink-0 mt-0.5" />
+                  <p className="text-xs font-sans text-marigold">
+                    {unanswered} question{unanswered > 1 ? 's' : ''} left unanswered. Skipped questions will be marked as incorrect.
+                  </p>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={onCancel}
+                  disabled={submitting}
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-edge text-sm font-sans font-semibold text-muted hover:text-ink hover:border-ink transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Go back
+                </button>
+                <button
+                  onClick={onConfirm}
+                  disabled={submitting}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-teal text-white text-sm font-sans font-semibold hover:bg-teal-dark transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Submitting…
+                    </>
+                  ) : 'Submit test'}
+                </button>
+              </div>
+
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -339,8 +444,29 @@ function TestLoadingScreen() {
   TestPageContent — the actual layout, rendered only after questions load.
   Separated from TestPage so it can call useTest() safely inside TestProvider.
 */
+/*
+  TestPageContent — the actual layout. Manages the submit modal and handles
+  both manual submission (via the modal) and auto-submission when time expires.
+*/
 function TestPageContent() {
-  const { loading } = useTest()
+  const { loading, expired, submitAnswers } = useTest()
+  const navigate    = useNavigate()
+  const [modalOpen,  setModalOpen]  = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+
+  // Shared submit logic used by both manual confirm and auto-expiry
+  async function handleSubmitConfirmed() {
+    if (submitting) return          // guard against double calls
+    setSubmitting(true)
+    setModalOpen(false)
+    await submitAnswers()
+    navigate('/dashboard/results')
+  }
+
+  // Auto-submit as soon as the timer fires its expiry callback
+  useEffect(() => {
+    if (expired) handleSubmitConfirmed()
+  }, [expired])  // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) return <TestLoadingScreen />
 
@@ -357,7 +483,7 @@ function TestPageContent() {
           <div className="flex-1 min-w-0 flex flex-col gap-5">
             <SectionTabs />
             <QuestionCard />
-            <NavigationBar />
+            <NavigationBar onSubmitClick={() => setModalOpen(true)} />
           </div>
 
           {/* Right: palette panel — desktop only, sticky so it stays in view while scrolling */}
@@ -370,6 +496,31 @@ function TestPageContent() {
 
       {/* Mobile palette: floating button + slide-up drawer */}
       <MobilePaletteDrawer />
+
+      {/* Confirmation modal — shown on manual submit click */}
+      <SubmitModal
+        open={modalOpen}
+        onCancel={() => setModalOpen(false)}
+        onConfirm={handleSubmitConfirmed}
+        submitting={submitting}
+      />
+
+      {/* Full-screen overlay shown while auto-submitting on timer expiry */}
+      <AnimatePresence>
+        {submitting && expired && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-ink/70 z-50 flex flex-col items-center justify-center gap-4"
+          >
+            <Loader2 size={36} className="text-teal animate-spin" />
+            <p className="font-sans font-semibold text-white text-base">
+              Time's up! Submitting your test…
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   )
 }
