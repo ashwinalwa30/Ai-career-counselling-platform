@@ -15,6 +15,13 @@ import {
   CAREER_FACTS,
 } from '../data/dashboard.js'
 import QUESTIONS, { SECTIONS } from '../data/questions.js'
+import {
+  calculateSectionScores,
+  calculateOverallScore,
+  calculateRiasecScores,
+  getTopRiasecTypes,
+  getStrengthsAndWeaknesses,
+} from '../utils/scoring.js'
 
 // ── In-memory "database" ────────────────────────────────────────────────────
 // Starts with the seed data. registerUser pushes new entries here at runtime.
@@ -256,47 +263,24 @@ export async function getQuestions() {
 }
 
 /*
-  submitTest — scores the student's answers and stores the result.
+  submitTest — scores all answers using the pure functions in scoring.js,
+  stores the result in memory, and marks the test as completed.
 
-  'answers' is an object mapping questionId → selected option text:
+  'answers' maps questionId → selected option text:
     { lr_01: '38', ip_01: 'Art, Music or Drama', ... }
 
-  Cognitive scoring: count correct answers per section, convert to percentage.
-  RIASEC scoring: for each interest question, find the matching option's
-  riasecType and increment that type's tally.
+  The result shape mirrors what the real backend/AI endpoint will return,
+  so the Results page never needs to change when the backend is wired up.
 */
 export async function submitTest(answers) {
   await wait()
 
-  const COGNITIVE_SECTION_IDS = [
-    'logical_reasoning', 'numerical_ability', 'verbal_ability', 'spatial_reasoning',
-  ]
+  const sectionScores = calculateSectionScores(answers, QUESTIONS)
+  const overallScore  = calculateOverallScore(sectionScores)
+  const riasecScores  = calculateRiasecScores(answers, QUESTIONS)
+  const topTypes      = getTopRiasecTypes(riasecScores)
+  const { strengths, weaknesses } = getStrengthsAndWeaknesses(sectionScores)
 
-  // Score cognitive sections
-  const cognitiveScores = {}
-  COGNITIVE_SECTION_IDS.forEach(sectionId => {
-    const qs      = QUESTIONS.filter(q => q.section === sectionId)
-    const correct = qs.filter(q => answers[q.id] === q.correctAnswer).length
-    cognitiveScores[sectionId] = {
-      correct,
-      total:      qs.length,
-      percentage: Math.round((correct / qs.length) * 100),
-    }
-  })
-
-  // Tally RIASEC types from interest profile answers
-  const riasecScores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 }
-  QUESTIONS
-    .filter(q => q.section === 'interest_profile')
-    .forEach(q => {
-      const selectedText = answers[q.id]
-      if (selectedText != null) {
-        const opt = q.options.find(o => o.text === selectedText)
-        if (opt) riasecScores[opt.riasecType]++
-      }
-    })
-
-  // Mark test as done
   testState = {
     ...testState,
     status:            'completed',
@@ -304,35 +288,35 @@ export async function submitTest(answers) {
     completedAt:       new Date().toISOString(),
   }
 
-  const result = {
-    cognitiveScores,
+  lastTestResult = {
+    overallScore,
+    sectionScores,
     riasecScores,
-    totalAnswered: Object.keys(answers).length,
-    completedAt:   testState.completedAt,
-  }
-  lastTestResult = result
-
-  return {
-    success: true,
-    data:    { result },
-    message: 'Test submitted successfully',
-  }
-}
-
-/*
-  getTestResults — returns the most recently scored test result.
-  Called by the Results page after the student submits.
-*/
-export async function getTestResults() {
-  await wait(300)
-
-  if (!lastTestResult) {
-    throw new Error('No results found. Please complete the aptitude test first.')
+    topTypes,
+    strengths,
+    weaknesses,
+    completedAt: testState.completedAt,
   }
 
   return {
     success: true,
     data:    { result: lastTestResult },
-    message: 'Results loaded',
+    message: 'Test submitted successfully',
+  }
+}
+
+/*
+  getResults — returns the most recently scored test result, shaped exactly
+  like the real backend response will be.
+  Returns null in the data payload if no test has been taken yet — the
+  Results page uses this to show the empty state.
+*/
+export async function getResults() {
+  await wait(300)
+
+  return {
+    success: true,
+    data:    { result: lastTestResult },   // null if test not yet taken
+    message: lastTestResult ? 'Results loaded' : 'No test taken yet',
   }
 }
