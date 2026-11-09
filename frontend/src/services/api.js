@@ -154,6 +154,22 @@ export async function logoutUser() {
   }
 }
 
+// ── Test status ───────────────────────────────────────────────────────────────
+
+/*
+  getTestStatus — lightweight call used by the instructions page.
+  Returns the current test state and section metadata without loading all questions.
+*/
+export async function getTestStatus() {
+  await wait(200)
+
+  return {
+    success: true,
+    data:    { testStatus: testState, sections: SECTIONS },
+    message: 'Test status loaded',
+  }
+}
+
 // ── Dashboard ────────────────────────────────────────────────────────────────
 
 /*
