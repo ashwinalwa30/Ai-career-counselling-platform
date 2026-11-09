@@ -15,6 +15,7 @@ import {
   CAREER_FACTS,
 } from '../data/dashboard.js'
 import QUESTIONS, { SECTIONS } from '../data/questions.js'
+import CAREERS               from '../data/careers.js'
 import {
   calculateSectionScores,
   calculateOverallScore,
@@ -322,5 +323,103 @@ export async function getResults() {
     success: true,
     data:    { result: lastTestResult },   // null if test not yet taken
     message: lastTestResult ? 'Results loaded' : 'No test taken yet',
+  }
+}
+
+// ── Careers ───────────────────────────────────────────────────────────────────
+
+/*
+  getCareers — returns all careers, optionally filtered by stream.
+  Accepts an optional { stream } query param matching the careers page filters.
+*/
+export async function getCareers({ stream } = {}) {
+  await wait(400)
+
+  const careers = stream
+    ? CAREERS.filter(c => c.stream === stream)
+    : CAREERS
+
+  return {
+    success: true,
+    data:    { careers },
+    message: 'Careers loaded',
+  }
+}
+
+/*
+  getCareerById — returns a single career object by its id slug.
+  Throws if the id is not found so the detail page can show a 404-style state.
+*/
+export async function getCareerById(id) {
+  await wait(300)
+
+  const career = CAREERS.find(c => c.id === id)
+  if (!career) throw new Error(`Career "${id}" not found.`)
+
+  return {
+    success: true,
+    data:    { career },
+    message: 'Career loaded',
+  }
+}
+
+/*
+  getRecommendations — calculates a match % for every career based on the
+  student's RIASEC scores and aptitude section scores, then sorts by match.
+
+  Match formula (50 / 50 split):
+    riasecMatch   = sum of career's 2 RIASEC type scores / 12 total points × 100
+    aptitudeMatch = average of career's 2 required section scores (already 0–100)
+    overall       = round(0.5 × riasecMatch + 0.5 × aptitudeMatch)
+
+  If no results exist (test not taken), careers are returned without a matchPct
+  and hasResults is false — the UI uses this to show a "take the test" banner.
+*/
+export async function getRecommendations() {
+  await wait(500)
+
+  if (!lastTestResult) {
+    // No test taken — return all careers in default order, no match %
+    return {
+      success: true,
+      data: {
+        careers:    CAREERS.map(c => ({ ...c, matchPct: null })),
+        hasResults: false,
+      },
+      message: 'No test results — showing all careers',
+    }
+  }
+
+  const { riasecScores, sectionScores } = lastTestResult
+
+  const withMatch = CAREERS.map(career => {
+    // RIASEC match: sum of this career's type scores normalised to 12 total points
+    const riasecPoints = career.riasecTypes
+      .reduce((sum, t) => sum + (riasecScores[t] ?? 0), 0)
+    const riasecMatch  = Math.min(100, Math.round((riasecPoints / 12) * 100))
+
+    // Aptitude match: average of the required section scores
+    const aptitudeMatch = career.requiredAptitudes.length > 0
+      ? Math.round(
+          career.requiredAptitudes.reduce((sum, a) => sum + (sectionScores[a] ?? 0), 0)
+          / career.requiredAptitudes.length
+        )
+      : 50
+
+    const matchPct = Math.round(0.5 * riasecMatch + 0.5 * aptitudeMatch)
+
+    return { ...career, matchPct }
+  })
+
+  // Sort descending by match %
+  withMatch.sort((a, b) => b.matchPct - a.matchPct)
+
+  return {
+    success: true,
+    data: {
+      careers:    withMatch,
+      hasResults: true,
+    },
+    message: 'Recommendations calculated',
   }
 }
