@@ -11,7 +11,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 Language = Literal["en", "hi"]
-ReplySource = Literal["llm", "fallback"]
+ReplySource = Literal["rules", "llm", "fallback"]
 
 
 class ApiEnvelope(BaseModel):
@@ -81,21 +81,28 @@ class CareerMatch(BaseModel):
     breakdown: dict[str, Any] = Field(default_factory=dict)
     reasons: list[str] = Field(default_factory=list)
     gaps: list[str] = Field(default_factory=list)
-    confidence: float = Field(ge=0, le=1)
+    confidence: str | float = "medium"
 
 
 class ExplainRequest(BaseModel):
     careerId: str
     result: AssessResult
     profile: StudentProfile | None = None
+    match: CareerMatch | dict[str, Any] | None = None
     language: Language = "en"
+    polish: bool = False
+    topPicks: list[str] | None = None
 
 
 class ExplainResponse(BaseModel):
-    careerId: str
-    explanation: str
-    reasons: list[str] = Field(default_factory=list)
-    source: ReplySource
+    headline: str
+    whyItFits: list[str]
+    watchOuts: list[str] = Field(default_factory=list)
+    whatWouldChange: list[str] = Field(default_factory=list)
+    confidence: str
+    source: Literal["rules", "llm"]
+    careerId: str | None = None
+    explanation: str | None = None
 
 
 class RoadmapStep(BaseModel):

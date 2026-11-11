@@ -13,8 +13,16 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.analysis import build_analysis
 from app.config import settings
 from app.data_loader import get_questions, load_data
+from app.explain import explain_career
 from app.recommend import recommend_careers
-from app.schemas import ApiEnvelope, AssessRequest, AssessResult, RecommendRequest
+from app.schemas import (
+    ApiEnvelope,
+    AssessRequest,
+    AssessResult,
+    ExplainRequest,
+    ExplainResponse,
+    RecommendRequest,
+)
 from app.scoring import (
     calculate_overall_score,
     calculate_riasec_percents,
@@ -138,4 +146,22 @@ def get_recommendations(req: RecommendRequest) -> ApiEnvelope:
         success=True,
         data=data,
         message="Recommendations calculated successfully",
+    )
+
+
+@app.post("/ai/explain", response_model=ApiEnvelope)
+def get_career_explanation(req: ExplainRequest) -> ApiEnvelope:
+    data = explain_career(
+        career_id=req.careerId,
+        result=req.result,
+        match=req.match,
+        profile=req.profile,
+        language=req.language,
+        polish=req.polish,
+        top_picks=req.topPicks,
+    )
+    return ApiEnvelope(
+        success=True,
+        data=data.model_dump(),
+        message="Career match explanation generated successfully",
     )
