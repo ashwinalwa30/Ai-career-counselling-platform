@@ -55,7 +55,7 @@ class AssessRequest(BaseModel):
 
 
 class AssessResult(BaseModel):
-    """The seven fields Results already reads, plus an optional analysis object."""
+    """The seven fields Results already reads, plus riasecPercent and analysis object."""
 
     overallScore: int
     sectionScores: dict[str, int]
@@ -64,6 +64,7 @@ class AssessResult(BaseModel):
     strengths: list[str]
     weaknesses: list[str]
     completedAt: str
+    riasecPercent: dict[str, int] | None = None
     analysis: dict[str, Any] | None = None
 
 

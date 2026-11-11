@@ -10,8 +10,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.analysis import build_analysis
 from app.config import settings
-from app.data_loader import load_data
+from app.data_loader import get_questions, load_data
+from app.schemas import ApiEnvelope, AssessRequest, AssessResult
+from app.scoring import (
+    calculate_overall_score,
+    calculate_riasec_percents,
+    calculate_riasec_scores,
+    calculate_section_scores,
+    get_completed_at,
+    get_strengths_and_weaknesses,
+    get_top_riasec_types,
+)
 
 
 @asynccontextmanager
@@ -69,3 +80,46 @@ def health() -> dict:
         },
         "message": "AI service is running",
     }
+
+
+@app.post("/ai/assess", response_model=ApiEnvelope)
+def assess(req: AssessRequest) -> ApiEnvelope:
+    questions = get_questions()
+    section_scores = calculate_section_scores(req.answers, questions)
+    overall_score = calculate_overall_score(section_scores)
+    riasec_scores = calculate_riasec_scores(req.answers, questions)
+    riasec_percents = calculate_riasec_percents(riasec_scores)
+    profile_interests = req.profile.interests if req.profile else None
+    top_types = get_top_riasec_types(riasec_percents, profile_interests, limit=2)
+    strengths, weaknesses, strengths_are_relative = get_strengths_and_weaknesses(section_scores)
+    completed_at = get_completed_at()
+
+    analysis = build_analysis(
+        section_scores=section_scores,
+        riasec_percents=riasec_percents,
+        top_types=top_types,
+        strengths=strengths,
+        strengths_are_relative=strengths_are_relative,
+        answers=req.answers,
+        questions=questions,
+        profile=req.profile,
+        language=req.language,
+    )
+
+    result = AssessResult(
+        overallScore=overall_score,
+        sectionScores=section_scores,
+        riasecScores=riasec_scores,
+        riasecPercent=riasec_percents,
+        topTypes=top_types,
+        strengths=strengths,
+        weaknesses=weaknesses,
+        completedAt=completed_at,
+        analysis=analysis,
+    )
+
+    return ApiEnvelope(
+        success=True,
+        data=result.model_dump(),
+        message="Assessment scored successfully",
+    )
