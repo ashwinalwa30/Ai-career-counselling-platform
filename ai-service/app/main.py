@@ -13,7 +13,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.analysis import build_analysis
 from app.config import settings
 from app.data_loader import get_questions, load_data
-from app.schemas import ApiEnvelope, AssessRequest, AssessResult
+from app.recommend import recommend_careers
+from app.schemas import ApiEnvelope, AssessRequest, AssessResult, RecommendRequest
 from app.scoring import (
     calculate_overall_score,
     calculate_riasec_percents,
@@ -122,4 +123,19 @@ def assess(req: AssessRequest) -> ApiEnvelope:
         success=True,
         data=result.model_dump(),
         message="Assessment scored successfully",
+    )
+
+
+@app.post("/ai/recommendations", response_model=ApiEnvelope)
+@app.post("/ai/recommend", response_model=ApiEnvelope)
+def get_recommendations(req: RecommendRequest) -> ApiEnvelope:
+    data = recommend_careers(
+        result=req.result,
+        profile=req.profile,
+        language=req.language,
+    )
+    return ApiEnvelope(
+        success=True,
+        data=data,
+        message="Recommendations calculated successfully",
     )

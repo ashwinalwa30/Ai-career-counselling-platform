@@ -1,0 +1,89 @@
+{
+  "coding": {
+    "software_engineer": 1.0,
+    "data_scientist": 0.9,
+    "game_developer": 0.9,
+    "electrician_iti": 0.3
+  },
+  "maths": {
+    "data_scientist": 1.0,
+    "chartered_accountant": 0.9,
+    "software_engineer": 0.8,
+    "commercial_pilot": 0.7,
+    "architect": 0.6,
+    "agricultural_scientist": 0.5,
+    "electrician_iti": 0.4
+  },
+  "biology": {
+    "doctor": 1.0,
+    "physiotherapist": 0.9,
+    "agricultural_scientist": 0.9,
+    "psychologist": 0.6
+  },
+  "art": {
+    "graphic_designer": 1.0,
+    "fashion_designer": 1.0,
+    "architect": 0.8,
+    "game_developer": 0.7,
+    "hotel_management": 0.4
+  },
+  "design": {
+    "architect": 1.0,
+    "graphic_designer": 1.0,
+    "fashion_designer": 1.0,
+    "game_developer": 0.8,
+    "software_engineer": 0.4,
+    "electrician_iti": 0.3
+  },
+  "business": {
+    "entrepreneur": 1.0,
+    "chartered_accountant": 0.9,
+    "hotel_management": 0.8,
+    "civil_services_ias": 0.6,
+    "lawyer": 0.6
+  },
+  "writing": {
+    "journalist": 1.0,
+    "lawyer": 0.8,
+    "psychologist": 0.6,
+    "teacher": 0.6,
+    "civil_services_ias": 0.6
+  },
+  "music": {
+    "game_developer": 0.7,
+    "fashion_designer": 0.5,
+    "journalist": 0.4,
+    "teacher": 0.4
+  },
+  "sports": {
+    "physiotherapist": 1.0,
+    "defence_officer": 0.9,
+    "commercial_pilot": 0.6,
+    "hotel_management": 0.4,
+    "electrician_iti": 0.3
+  },
+  "social-work": {
+    "civil_services_ias": 1.0,
+    "psychologist": 0.9,
+    "teacher": 0.8,
+    "doctor": 0.8,
+    "lawyer": 0.7,
+    "physiotherapist": 0.7,
+    "defence_officer": 0.5
+  },
+  "law": {
+    "lawyer": 1.0,
+    "civil_services_ias": 0.9,
+    "chartered_accountant": 0.6,
+    "journalist": 0.5,
+    "defence_officer": 0.4
+  },
+  "teaching": {
+    "teacher": 1.0,
+    "psychologist": 0.7,
+    "agricultural_scientist": 0.6,
+    "physiotherapist": 0.6,
+    "doctor": 0.5
+  }
+}
+
