@@ -110,6 +110,9 @@ class RoadmapStep(BaseModel):
     stage: str
     title: str
     desc: str
+    status: Literal["done", "now", "next", "later"] = "later"
+    timing: str = ""
+    actions: list[str] = Field(default_factory=list)
 
 
 class RoadmapRequest(BaseModel):
@@ -117,12 +120,17 @@ class RoadmapRequest(BaseModel):
     result: AssessResult | None = None
     profile: StudentProfile | None = None
     language: Language = "en"
+    polish: bool = False
 
 
 class RoadmapResponse(BaseModel):
-    careerId: str
+    careerId: str | None = None
     steps: list[RoadmapStep]
-    source: ReplySource
+    focusAreas: list[str] = Field(default_factory=list)
+    streamAdvice: str | None = None
+    examPlan: list[dict[str, Any]] = Field(default_factory=list)
+    backupPaths: list[dict[str, Any]] = Field(default_factory=list)
+    source: Literal["rules", "llm"] = "rules"
 
 
 class ChatTurn(BaseModel):

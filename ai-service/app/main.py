@@ -11,17 +11,23 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.analysis import build_analysis
+from app.chatbot import chat_counsellor
 from app.config import settings
 from app.data_loader import get_questions, load_data
 from app.explain import explain_career
 from app.recommend import recommend_careers
+from app.roadmap import personalize_roadmap
 from app.schemas import (
     ApiEnvelope,
     AssessRequest,
     AssessResult,
+    ChatRequest,
+    ChatResponse,
     ExplainRequest,
     ExplainResponse,
     RecommendRequest,
+    RoadmapRequest,
+    RoadmapResponse,
 )
 from app.scoring import (
     calculate_overall_score,
@@ -164,4 +170,35 @@ def get_career_explanation(req: ExplainRequest) -> ApiEnvelope:
         success=True,
         data=data.model_dump(),
         message="Career match explanation generated successfully",
+    )
+
+
+@app.post("/ai/roadmap", response_model=ApiEnvelope)
+def get_career_roadmap(req: RoadmapRequest) -> ApiEnvelope:
+    data = personalize_roadmap(
+        career_id=req.careerId,
+        result=req.result,
+        profile=req.profile,
+        language=req.language,
+        polish=req.polish,
+    )
+    return ApiEnvelope(
+        success=True,
+        data=data.model_dump(),
+        message="Personalised roadmap generated successfully",
+    )
+
+
+@app.post("/ai/chat", response_model=ApiEnvelope)
+def chat(req: ChatRequest) -> ApiEnvelope:
+    data = chat_counsellor(
+        message=req.message,
+        history=req.history,
+        context=req.context,
+        language=req.language,
+    )
+    return ApiEnvelope(
+        success=True,
+        data=data.model_dump(),
+        message="Chat response generated successfully",
     )
