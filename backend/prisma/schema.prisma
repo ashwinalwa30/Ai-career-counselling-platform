@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id                String    @id @default(cuid())
+  fullName          String
+  email             String    @unique
+  passwordHash      String
+  phone             String?
+  grade             String?   @map("class")
+  board             String?
+  schoolName        String?
+  state             String?
+  preferredLanguage String    @default("English")
+  interests         String[]  @default([])
+  dob               DateTime? @db.Date
+  subjectMarks      Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  sessions     Session[]
+  testAttempts TestAttempt[]
+  chatMessages ChatMessage[]
+
+  @@index([email])
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model TestSection {
+  id            String     @id
+  label         String
+  description   String
+  questionCount Int
+  type          String
+  questions     Question[]
+}
+
+model Question {
+  id            String      @id
+  sectionId     String
+  question      String
+  options       Json
+  correctAnswer String?
+  difficulty    String
+  section       TestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  answers       TestAnswer[]
+
+  @@index([sectionId])
+}
+
+model Career {
+  id                String   @id
+  title             String
+  stream            String
+  icon              String
+  description       String
+  riasecTypes       String[] @default([])
+  requiredAptitudes String[] @default([])
+  details           Json
+
+  @@index([stream])
+}
+
+model TestAttempt {
+  id                String        @id @default(cuid())
+  userId            String
+  status            AttemptStatus @default(IN_PROGRESS)
+  questionsAnswered Int           @default(0)
+  startedAt         DateTime      @default(now())
+  completedAt       DateTime?
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers           TestAnswer[]
+  result            TestResult?
+
+  @@index([userId, startedAt])
+}
+
+model TestAnswer {
+  id             String      @id @default(cuid())
+  attemptId      String
+  questionId     String
+  selectedOption String
+  isCorrect      Boolean?
+  attempt        TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question    @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([attemptId, questionId])
+  @@index([questionId])
+}
+
+model TestResult {
+  id            String      @id @default(cuid())
+  attemptId     String      @unique
+  overallScore  Int
+  sectionScores Json
+  riasecScores  Json
+  topTypes      String[]
+  strengths     String[]
+  weaknesses    String[]
+  completedAt   DateTime    @default(now())
+  attempt       TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
