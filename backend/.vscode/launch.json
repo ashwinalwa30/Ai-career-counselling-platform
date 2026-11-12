@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug PathFinder API",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/server.js",
+      "envFile": "${workspaceFolder}/.env",
+      "runtimeArgs": ["--experimental-vm-modules"],
+      "console": "integratedTerminal",
+      "restart": true
+    }
+  ]
+}
