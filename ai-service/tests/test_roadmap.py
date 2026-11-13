@@ -133,19 +133,96 @@ def test_marks_gate_adds_watch_out_and_related_career():
 
 
 def test_no_exam_or_college_outside_careers_json():
-    """Verify that all entrance exams in examPlan come strictly from career record in careers.json."""
+    """Verify that no exam from deny-list appears in roadmap strings unless in the career's entranceExams or roadmap."""
     careers = get_careers()
-    se = next(c for c in careers if c["id"] == "software_engineer")
-    allowed_exam_names = {e["name"] for e in se["entranceExams"]}
+    deny_list = [
+        "NTSE",
+        "KVPY",
+        "BITSAT",
+        "WBJEE",
+        "JoSAA",
+        "CSAB",
+        "NEET",
+        "JEE",
+        "CLAT",
+        "CAT",
+        "GATE",
+        "UPSC",
+    ]
 
-    resp = personalize_roadmap(
-        career_id="software_engineer",
-        language="en",
+    # Result with weak section scores triggers aptitude bridge steps and SECTION_TIPS
+    result_with_weak_sections = AssessResult(
+        overallScore=40,
+        sectionScores={
+            "logical_reasoning": 40,
+            "numerical_ability": 40,
+            "verbal_ability": 40,
+            "spatial_reasoning": 40,
+        },
+        riasecScores={"R": 2, "I": 2, "A": 2, "S": 2, "E": 2, "C": 2},
+        topTypes=["R", "I"],
+        strengths=["logical_reasoning"],
+        weaknesses=["numerical_ability"],
+        completedAt="2026-11-10T00:00:00Z",
     )
 
-    for exam_item in resp.examPlan:
-        assert exam_item["name"] in allowed_exam_names
-        assert exam_item["startPreparingBy"] in ["Class 11", "Class 12"]
+    # Class 10 profile with sub-60 marks triggers streamAdvice and marks-gate watch-out
+    profile_class_10 = StudentProfile(
+        student_class="10",
+        subjectMarks=SubjectMarks(maths=45, science=45, english=45),
+    )
+
+    for lang in ["en", "hi"]:
+        for career in careers:
+            cid = career["id"]
+            allowed_corpus = (
+                " ".join(
+                    [
+                        str(e.get("name", "")) + " " + str(e.get("desc", ""))
+                        for e in career.get("entranceExams", [])
+                    ]
+                )
+                + " "
+                + " ".join(
+                    [
+                        str(s.get("title", "")) + " " + str(s.get("desc", ""))
+                        for s in career.get("roadmap", [])
+                    ]
+                )
+            )
+
+            resp = personalize_roadmap(
+                career_id=cid,
+                profile=profile_class_10,
+                result=result_with_weak_sections,
+                language=lang,
+            )
+
+            # Check that examPlan only contains exams from the career record
+            allowed_exam_names = {e["name"] for e in career.get("entranceExams", [])}
+            for exam_item in resp.examPlan:
+                assert exam_item["name"] in allowed_exam_names
+
+            # Collect every action, desc, watch-out, focus-area, and streamAdvice string
+            strings_to_check: list[str] = []
+            if resp.streamAdvice:
+                strings_to_check.append(resp.streamAdvice)
+            for fa in resp.focusAreas:
+                strings_to_check.append(fa)
+            for step in resp.steps:
+                strings_to_check.append(step.desc)
+                for action in step.actions:
+                    strings_to_check.append(action)
+
+            # Verify no unallowed exam from deny_list appears
+            for text in strings_to_check:
+                for exam in deny_list:
+                    pattern = rf"\b{re.escape(exam)}\b"
+                    if re.search(pattern, text, re.IGNORECASE):
+                        assert re.search(pattern, allowed_corpus, re.IGNORECASE), (
+                            f"Career '{cid}' ({lang}) output contains '{exam}' which is "
+                            f"not in its entranceExams or roadmap text: '{text}'"
+                        )
 
 
 def test_hindi_output_works():

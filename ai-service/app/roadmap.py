@@ -30,7 +30,7 @@ SECTION_TIPS: dict[str, list[str]] = {
     "logical_reasoning": [
         "Practise puzzle types like number series, analogies and syllogisms for 15 minutes every day.",
         "Solve one new riddle or brain-teaser each morning to sharpen pattern recognition.",
-        "Work through past reasoning papers from exams like NTSE, KVPY or Olympiads.",
+        "Work through past reasoning papers, Olympiad-style puzzles or school-level reasoning practice sets.",
     ],
     "numerical_ability": [
         "Practise mental maths daily: tables up to 25, percentage shortcuts and fraction conversions.",
@@ -53,7 +53,7 @@ SECTION_TIPS_HI: dict[str, list[str]] = {
     "logical_reasoning": [
         "संख्या श्रृंखला, सादृश्यता (analogies) और न्यायवाक्य (syllogisms) जैसे पहेली प्रश्नों का रोज़ाना 15 मिनट अभ्यास करें।",
         "पैटर्न पहचानने की क्षमता को तेज करने के लिए रोज़ सुबह एक नई पहेली हल करें।",
-        "NTSE, KVPY या ओलंपियाड जैसी परीक्षाओं के पुराने प्रश्नपत्रों को हल करें।",
+        "तर्कशक्ति के पुराने प्रश्नपत्रों, ओलंपियाड-शैली की पहेलियों या स्कूल-स्तरीय अभ्यास सेटों को हल करें।",
     ],
     "numerical_ability": [
         "दैनिक मानसिक गणित का अभ्यास करें: 25 तक पहाड़े, प्रतिशत के शॉर्टकट और भिन्न रूपांतरण।",
@@ -187,8 +187,9 @@ def generate_stream_advice(career: dict[str, Any], student_class: int, language:
     title = career.get("title", "this career")
     stream_step = next((s for s in career.get("roadmap", []) if s.get("stage") == "Stream"), None)
     stream_title = stream_step.get("title", "") if stream_step else ""
+    stream_desc = stream_step.get("desc", "") if stream_step else ""
 
-    if "PCM" in stream_title or "Physics, Chemistry and Maths" in stream_step.get("desc", ""):
+    if "PCM" in stream_title or "Physics, Chemistry and Maths" in stream_desc:
         if language == "hi":
             return (
                 f"{title} में आगे बढ़ने के लिए कक्षा 11वीं में भौतिकी, रसायन और गणित (PCM) स्ट्रीम चुनें। "
@@ -198,7 +199,7 @@ def generate_stream_advice(career: dict[str, Any], student_class: int, language:
             f"To pursue {title}, choose Science with Physics, Chemistry, and Mathematics (PCM) in Class 11. "
             "Maintain 75%+ across Mathematics and Science in Class 10 boards to comfortably keep this pathway open."
         )
-    elif "PCB" in stream_title or "Biology" in stream_step.get("desc", ""):
+    elif "PCB" in stream_title or "Biology" in stream_desc:
         if language == "hi":
             return (
                 f"{title} के लिए कक्षा 11वीं में भौतिकी, रसायन और जीवविज्ञान (PCB) चुनना अनिवार्य है। "
