@@ -396,3 +396,4 @@ def get_counsellor_fallback(
         "PathFinder एप्टीट्यूड टेस्ट कैसे काम करता है?",
     ]
     return reply, follow_ups, []
+

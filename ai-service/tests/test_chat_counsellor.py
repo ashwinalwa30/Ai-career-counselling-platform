@@ -271,3 +271,4 @@ def test_html_stripping_and_empty_message_rejection():
     assert bad_resp.status_code == 400
     assert bad_resp.json()["success"] is False
     assert "empty" in bad_resp.json()["message"].lower()
+

@@ -180,3 +180,4 @@ def build_counsellor_context(
         sections.append("\n".join(cr_lines).strip())
 
     return "\n\n".join(sections)
+

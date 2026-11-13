@@ -72,3 +72,4 @@ def get_llm_provider() -> LLMProvider:
         api_key=settings.LLM_API_KEY,
         model=settings.LLM_MODEL,
     )
+
