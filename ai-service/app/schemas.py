@@ -139,7 +139,7 @@ class ChatTurn(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., max_length=500)
     history: list[ChatTurn] = Field(default_factory=list)
     context: dict[str, Any] | None = None
     language: Language = "en"
@@ -148,3 +148,5 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
     source: ReplySource
+    suggestedFollowUps: list[str] = Field(default_factory=list)
+    citedCareerIds: list[str] = Field(default_factory=list)
