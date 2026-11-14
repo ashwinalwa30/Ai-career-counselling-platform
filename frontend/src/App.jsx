@@ -26,7 +26,6 @@ import CareerDetail     from './pages/CareerDetail'
 import CareerExplore    from './pages/CareerExplore'
 import CareerCompare    from './pages/CareerCompare'
 import Counsellor       from './pages/Counsellor'
-import ComingSoon       from './pages/ComingSoon'
 import NotFound         from './pages/NotFound'
 
 function App() {
