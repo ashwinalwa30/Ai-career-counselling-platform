@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: pathfinder-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        value: https://cute-klepon-6c714a.netlify.app,http://localhost:5173
+      - key: SESSION_DAYS
+        value: 30
+      - key: DATABASE_URL
+        sync: false
