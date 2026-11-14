@@ -10,9 +10,15 @@ let backendProcess = null;
 let mainWindow = null;
 
 function startBackend() {
-  const backendPath = path.join(__dirname, '..', 'backend');
+  const isPackaged = app.isPackaged;
+  const backendPath = isPackaged
+    ? path.join(process.resourcesPath, 'backend')
+    : path.join(__dirname, '..', 'backend');
 
-  backendProcess = spawn('node', ['src/server.js'], {
+  // In packaged app, process.execPath is the Electron binary which acts as Node when ELECTRON_RUN_AS_NODE=1
+  const nodeExec = isPackaged ? process.execPath : 'node';
+
+  backendProcess = spawn(nodeExec, ['src/server.js'], {
     cwd: backendPath,
     env: {
       ...process.env,
