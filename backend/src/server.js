@@ -8,8 +8,12 @@ const server = app.listen(port, () => {
   console.log(`PathFinder API listening on http://localhost:${port}`);
 });
 
+// Keep process active in non-interactive / daemon environments
+const keepAlive = setInterval(() => {}, 60000);
+
 async function shutdown(signal) {
   console.log(`${signal} received. Closing server...`);
+  clearInterval(keepAlive);
   server.close(async () => {
     await prisma.$disconnect();
     process.exit(0);

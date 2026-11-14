@@ -1,0 +1,13 @@
+{
+  "name": "pathfinder-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PathFinder AI Career Counselling Platform",
+  "scripts": {
+    "desktop": "cd electron && npm start",
+    "desktop:build": "cd frontend && npm run build && cd ../electron && npm run build:mac",
+    "backend:start": "cd backend && npm start",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build"
+  }
+}

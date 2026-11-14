@@ -4,7 +4,7 @@
   matching the backend response envelope.
 */
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/v1').replace(/\/$/, '')
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5001/v1').replace(/\/$/, '')
 const TOKEN_KEY = 'pf-auth-token' // Stored auth token key used across the app
 
 async function request(path, options = {}, explicitToken) {

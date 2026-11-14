@@ -3,6 +3,12 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { ZodError } from 'zod';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import authRoutes from './routes/auth.routes.js';
 import usersRoutes from './routes/users.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
@@ -39,9 +45,21 @@ app.use('/v1/test', testRoutes);
 app.use('/v1/careers', careersRoutes);
 app.use('/v1/chat', chatLimiter, chatRoutes);
 
-app.use((req, res) => {
-  res.status(404).json({ success: false, data: null, message: 'Route not found.' });
-});
+// Serve built React frontend (for Electron / desktop / production)
+const frontendDist = path.join(__dirname, '..', '..', 'frontend', 'dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.use((req, res) => {
+    if (req.path.startsWith('/v1')) {
+      return res.status(404).json({ success: false, data: null, message: 'Route not found.' });
+    }
+    return res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+} else {
+  app.use((req, res) => {
+    res.status(404).json({ success: false, data: null, message: 'Route not found.' });
+  });
+}
 
 app.use((error, req, res, next) => {
   if (res.headersSent) return next(error);
