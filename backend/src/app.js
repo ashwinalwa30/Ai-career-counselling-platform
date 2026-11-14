@@ -17,11 +17,16 @@ import careersRoutes from './routes/careers.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 
 const app = express();
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+const defaultOrigins = ['http://localhost:5001', 'http://localhost:5173', 'https://cute-klepon-6c714a.netlify.app'];
+const envOrigins = (process.env.FRONTEND_URL || '')
   .split(',')
-  .map((origin) => origin.trim());
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
 app.use(cors({
   origin(origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);

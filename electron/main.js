@@ -12,7 +12,6 @@ let mainWindow = null;
 function startBackend() {
   const backendPath = path.join(__dirname, '..', 'backend');
 
-  // Spawn node process for the backend
   backendProcess = spawn('node', ['src/server.js'], {
     cwd: backendPath,
     env: {
@@ -73,10 +72,24 @@ function createWindow() {
     minHeight: 640,
     title: 'PathFinder — AI Career Counselling',
     backgroundColor: '#0a0f1d',
+    show: false, // Don't show until ready
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
     },
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
+
+  // Log renderer errors to help debugging
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    console.error(`[Electron] Failed to load ${validatedURL}: ${errorDescription} (${errorCode})`);
+  });
+
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    console.log(`[Renderer] ${message}`);
   });
 
   // Handle external links by opening them in the user's default browser
@@ -117,6 +130,7 @@ app.whenReady().then(async () => {
 function cleanupBackend() {
   if (backendProcess) {
     try {
+      console.log('[Electron] Stopping backend server...');
       backendProcess.kill('SIGTERM');
     } catch (e) {
       // ignore
@@ -128,8 +142,8 @@ function cleanupBackend() {
 app.on('before-quit', cleanupBackend);
 
 app.on('window-all-closed', () => {
-  cleanupBackend();
   if (process.platform !== 'darwin') {
+    cleanupBackend();
     app.quit();
   }
 });
