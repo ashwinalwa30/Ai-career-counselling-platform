@@ -939,6 +939,48 @@ export default function Results() {
           weaknesses={weaknesses}
         />
 
+        {/* Top Recommended Career Matches */}
+        {topCareers.length > 0 && (
+          <div className="bg-surface border border-edge rounded-xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-sans font-semibold text-sm text-ink">Top Career Matches</h3>
+                <p className="text-xs font-sans text-muted mt-0.5">
+                  Careers that best match your aptitude strengths and personality profile.
+                </p>
+              </div>
+              <Link
+                to="/dashboard/careers"
+                className="text-xs font-sans font-semibold text-teal hover:underline inline-flex items-center gap-1"
+              >
+                View all ({topCareers.length}+) <ChevronRight size={12} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {topCareers.slice(0, 3).map(career => (
+                <div key={career.id} className="bg-paper border border-edge rounded-lg p-3.5 flex flex-col justify-between gap-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-2xl leading-none">{career.icon}</span>
+                    <span className="text-xs font-sans font-bold px-2 py-0.5 rounded-full bg-teal/10 text-teal">
+                      {career.matchPct}% match
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-ink text-sm leading-tight">{career.title}</p>
+                    <p className="text-[10px] text-muted font-sans mt-0.5">{career.stream}</p>
+                  </div>
+                  <Link
+                    to={`/dashboard/careers/${career.id}`}
+                    className="text-xs font-sans font-semibold text-teal hover:underline inline-flex items-center gap-1 mt-1"
+                  >
+                    View career roadmap →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <CareerMatchesCTA />
       </motion.div>
 

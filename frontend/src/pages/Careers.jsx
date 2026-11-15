@@ -124,16 +124,18 @@ function CareerCard({ career, hasResults, isCompared, onToggleCompare, compareDi
       </p>
 
       {/* Entry-level salary */}
-      <p className="text-xs font-sans text-muted">
-        <span className="font-semibold text-ink">
-          ₹{formatSalary(salary.entry.min)}–{formatSalary(salary.entry.max)}
-        </span>
-        {' '}p.a. · Entry level
-      </p>
+      {salary?.entry && (
+        <p className="text-xs font-sans text-muted">
+          <span className="font-semibold text-ink">
+            ₹{formatSalary(salary.entry.min)}–{formatSalary(salary.entry.max)}
+          </span>
+          {' '}p.a. · Entry level
+        </p>
+      )}
 
       {/* Top 3 skill chips */}
       <div className="flex flex-wrap gap-1.5">
-        {skills.slice(0, 3).map(skill => (
+        {(skills ?? []).slice(0, 3).map(skill => (
           <span
             key={skill}
             className="text-[10px] font-sans font-medium px-2 py-0.5 rounded-full bg-edge text-muted"
@@ -338,7 +340,7 @@ export default function Careers() {
     if (sortBy === 'match' && hasResults) {
       list.sort((a, b) => (b.matchPct ?? 0) - (a.matchPct ?? 0))
     } else if (sortBy === 'salary') {
-      list.sort((a, b) => b.salary.mid.min - a.salary.mid.min)
+      list.sort((a, b) => (b.salary?.mid?.min ?? 0) - (a.salary?.mid?.min ?? 0))
     } else {
       list.sort((a, b) => a.title.localeCompare(b.title))
     }

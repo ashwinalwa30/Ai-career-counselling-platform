@@ -602,8 +602,11 @@ function Dashboard() {
       setData({ ...dashRes.data, testStatus: mergedTestStatus })
       setResultData(result)
       // Show top 6 careers by match percentage from the real recommendations API
-      setCareerMatches(recsRes.data.careers.slice(0, 6))
+      setCareerMatches(recsRes?.data?.careers?.slice(0, 6) ?? [])
       setSteps(initialSteps)
+      setLoading(false)
+    }).catch(err => {
+      console.error('Failed to load dashboard:', err)
       setLoading(false)
     })
   }, [user?.id])
