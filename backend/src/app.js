@@ -81,12 +81,20 @@ app.use((error, req, res, next) => {
     return res.status(409).json({ success: false, data: null, message: 'A record with this value already exists.' });
   }
 
+  if (error.code === 'P1001' || error.message?.includes("Can't reach database server")) {
+    return res.status(503).json({
+      success: false,
+      data: null,
+      message: 'Database is waking up from standby. Please retry in a few seconds.',
+    });
+  }
+
   const status = error.status || 500;
   if (status >= 500) console.error(error);
   return res.status(status).json({
     success: false,
     data: null,
-    message: status >= 500 ? 'Something went wrong on the server.' : error.message,
+    message: status >= 500 ? (process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong on the server.') : error.message,
   });
 });
 
