@@ -85,7 +85,7 @@ app.use((error, req, res, next) => {
     return res.status(503).json({
       success: false,
       data: null,
-      message: 'Database is waking up from standby. Please retry in a few seconds.',
+      message: 'Database is connecting. Please retry in a few seconds.',
     });
   }
 

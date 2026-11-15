@@ -10,6 +10,7 @@ let backendProcess = null;
 let mainWindow = null;
 
 function startBackend() {
+  const fs = require('fs');
   const isPackaged = app.isPackaged;
   const backendPath = isPackaged
     ? path.join(process.resourcesPath, 'backend')
@@ -18,14 +19,36 @@ function startBackend() {
   // In packaged app, process.execPath is the Electron binary which acts as Node when ELECTRON_RUN_AS_NODE=1
   const nodeExec = isPackaged ? process.execPath : 'node';
 
+  const backendEnv = {
+    ...process.env,
+    PORT: String(PORT),
+    NODE_ENV: 'production',
+    ELECTRON_RUN_AS_NODE: '1',
+    DATABASE_URL: 'postgresql://neondb_owner:npg_t56SpJUvaYNM@ep-shiny-unit-az77p0l9-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require&connect_timeout=30',
+    DATABASE_URL_POOLED: 'postgresql://neondb_owner:npg_t56SpJUvaYNM@ep-shiny-unit-az77p0l9-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require&connect_timeout=30',
+  };
+
+  const envPath = path.join(backendPath, '.env');
+  if (fs.existsSync(envPath)) {
+    try {
+      const lines = fs.readFileSync(envPath, 'utf8').split('\n');
+      for (const line of lines) {
+        const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+        if (match) {
+          let val = match[2] || '';
+          if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+          if (val.startsWith("'") && val.endsWith("'")) val = val.slice(1, -1);
+          backendEnv[match[1]] = val;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not read backend .env:', e);
+    }
+  }
+
   backendProcess = spawn(nodeExec, ['src/server.js'], {
     cwd: backendPath,
-    env: {
-      ...process.env,
-      PORT: String(PORT),
-      NODE_ENV: 'production',
-      ELECTRON_RUN_AS_NODE: '1',
-    },
+    env: backendEnv,
     stdio: 'pipe',
   });
 
