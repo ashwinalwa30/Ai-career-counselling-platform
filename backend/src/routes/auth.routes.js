@@ -50,10 +50,26 @@ router.post('/login', asyncHandler(async (req, res) => {
   if (!parsed.success) throw httpError(422, parsed.error.issues[0]?.message ?? 'Invalid login details.');
 
   const email = parsed.data.email.toLowerCase();
-  const user = await prisma.user.findUnique({ where: { email } });
-  const passwordMatches = user
-    ? await bcrypt.compare(parsed.data.password, user.passwordHash)
-    : false;
+
+  // Auto-retry up to 3 times if database is waking up from standby
+  let user = null;
+  let passwordMatches = false;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      user = await prisma.user.findUnique({ where: { email } });
+      passwordMatches = user
+        ? await bcrypt.compare(parsed.data.password, user.passwordHash)
+        : false;
+      break;
+    } catch (dbErr) {
+      if (attempt < 3 && (dbErr.code === 'P1001' || dbErr.message?.includes("Can't reach database server"))) {
+        console.warn(`[Auth] Database connecting/waking up, retry attempt ${attempt} in 1.5s...`);
+        await new Promise((r) => setTimeout(r, 1500));
+        continue;
+      }
+      throw dbErr;
+    }
+  }
 
   if (!user || !passwordMatches) {
     throw httpError(401, 'Incorrect email or password. Please check and try again.');

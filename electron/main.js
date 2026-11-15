@@ -24,8 +24,8 @@ function startBackend() {
     PORT: String(PORT),
     NODE_ENV: 'production',
     ELECTRON_RUN_AS_NODE: '1',
-    DATABASE_URL: 'postgresql://neondb_owner:npg_t56SpJUvaYNM@ep-shiny-unit-az77p0l9-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require&connect_timeout=30',
-    DATABASE_URL_POOLED: 'postgresql://neondb_owner:npg_t56SpJUvaYNM@ep-shiny-unit-az77p0l9-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require&connect_timeout=30',
+    DATABASE_URL: 'postgresql://neondb_owner:npg_t56SpJUvaYNM@52.76.108.241:5432/neondb?sslmode=require&connect_timeout=30&options=endpoint%3Dep-shiny-unit-az77p0l9-pooler',
+    DATABASE_URL_POOLED: 'postgresql://neondb_owner:npg_t56SpJUvaYNM@52.76.108.241:5432/neondb?sslmode=require&connect_timeout=30&options=endpoint%3Dep-shiny-unit-az77p0l9-pooler',
   };
 
   const envPath = path.join(backendPath, '.env');
