@@ -8,7 +8,7 @@ This document shows representative sample data for each table in the database. T
 
 ```sql
 INSERT INTO "User" (
-  id, "fullName", email, "passwordHash", phone, grade, board,
+  id, "fullName", email, "passwordHash", phone, "class", board,
   "schoolName", state, "preferredLanguage", interests, dob, "subjectMarks"
 ) VALUES
 (
