@@ -122,7 +122,7 @@ SELECT
     "board",
     "preferredLanguage"
 FROM "User"
-WHERE "email" = 'rohan.kulkarni@example.com'
+WHERE "email" = 'ashwinalwa30@gmail.com'
 LIMIT 1;
 ```
 
